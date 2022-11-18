@@ -11,6 +11,7 @@ async function insertTrade(data: INewUserTrade) {
       "Can not insert the same trade again. Please check the datetime"
     );
   }
+
   const latestTrade = await getLatestTrade(data.userEmail, data.ticker);
   if (latestTrade === null) return await calcAndSaveNewTrade(newTrade);
   if (newTrade.date > latestTrade.date)
@@ -21,17 +22,15 @@ async function insertTrade(data: INewUserTrade) {
     data.ticker,
     data.date
   );
-  await setAllTradesAfterDateToRecalc(
-    newTrade.userEmail,
-    newTrade.ticker,
-    newTrade.date
-  );
+
   if (previousTrade) {
-    return await calcAndSaveNewTrade(newTrade, previousTrade);
+    await calcAndSaveNewTrade(newTrade, previousTrade);
   } else {
     // if we are inserting at the very beginning. Very first date
-    return await calcAndSaveNewTrade(newTrade);
+    await calcAndSaveNewTrade(newTrade);
   }
+  await updateAvgAndTotalTrades(newTrade);
+  return newTrade;
 }
 
 async function tradeExists(
@@ -43,6 +42,13 @@ async function tradeExists(
     userEmail: newTrade.userEmail,
   });
   return res !== null;
+}
+
+async function getLatestTrade(userEmail: string, ticker: string) {
+  return await Trade.findOne({
+    userEmail: userEmail,
+    ticker: ticker,
+  }).sort("-date");
 }
 
 async function calcAndSaveNewTrade(
@@ -69,13 +75,6 @@ async function calcAndSaveNewTrade(
   return await newTrade.save();
 }
 
-async function getLatestTrade(userEmail: string, ticker: string) {
-  return await Trade.findOne({
-    userEmail: userEmail,
-    ticker: ticker,
-  }).sort("-date");
-}
-
 function calculateNewAvgPrice(
   newPrice: number,
   newAmount: number,
@@ -84,10 +83,26 @@ function calculateNewAvgPrice(
   oldTotalAmount: number
 ): { currAvgPrice: number; currTotalAmount: number } {
   const currTotalAmount = newAmount + oldTotalAmount;
-  const currAvgPrice =
-    (newPrice * newAmount + newFees + oldAvgPrice * oldTotalAmount) /
-    currTotalAmount;
+  checkTotalAmountValid(currTotalAmount);
+  let currAvgPrice = oldAvgPrice;
+  if (newAmount > 0) {
+    // if buying update the currAvgPrice
+    currAvgPrice =
+      (newPrice * newAmount + newFees + oldAvgPrice * oldTotalAmount) /
+      currTotalAmount;
+  }
+  if (currTotalAmount === 0) {
+    currAvgPrice = 0;
+  }
   return { currTotalAmount, currAvgPrice };
+}
+
+function checkTotalAmountValid(totalAmount: number) {
+  if (totalAmount < 0) {
+    throw new Error(
+      "Total amount can not be negative. Trying to sell more than in custody"
+    );
+  }
 }
 
 async function getPreviousTrade(
@@ -103,26 +118,46 @@ async function getPreviousTrade(
   return previousTrade;
 }
 
+async function updateAvgAndTotalTrades(
+  newTrade: HydratedDocument<ITradeSchema>
+): Promise<void> {
+  try {
+    const tradesForUpdate = await Trade.find({
+      userEmail: newTrade.userEmail,
+      ticker: newTrade.ticker,
+      date: { $gt: newTrade.date },
+    }).sort("date");
+    if (tradesForUpdate) {
+      let recordsUpdated = 0;
+      tradesForUpdate.forEach(async (trade, idx) => {
+        const previousTrade = idx === 0 ? newTrade : tradesForUpdate[idx - 1];
+        await calcAndSaveNewTrade(trade, previousTrade);
+        recordsUpdated += 1;
+      });
+      console.log(
+        `${recordsUpdated}|${tradesForUpdate.length} updated with new Avg and Total Amounts`
+      );
+    }
+  } catch (err) {
+    console.error(
+      `Please contact adm to trigger recalculation on ${newTrade.userEmail} - ${newTrade.ticker} -> $gt: ${newTrade.date}`
+    );
+    console.error(err);
+    setAllTradesAfterDateToRecalc(newTrade);
+  }
+}
+
 async function setAllTradesAfterDateToRecalc(
-  userEmail: string,
-  ticker: string,
-  tradeDate: Date
-) {
-  const res = await Trade.updateMany(
-    { userEmail: userEmail, ticker: ticker, date: { $gt: tradeDate } },
+  newTrade: HydratedDocument<ITradeSchema>
+): Promise<void> {
+  await Trade.updateMany(
+    {
+      userEmail: newTrade.userEmail,
+      ticker: newTrade.ticker,
+      date: { $gt: newTrade.date },
+    },
     { valuesUpToDate: false }
   );
-  console.log(
-    `Setting trades more recent than ${tradeDate} to be recalculated for: <${userEmail}> | ${ticker}`
-  );
-  if (res.acknowledged) {
-    console.log(`${res.matchedCount} found. ${res.modifiedCount} modified`);
-  } else {
-    console.error("Could not set newer Trades to be recalculated!");
-    console.error(
-      `Please contact adm to trigger recalculation on ${userEmail} - ${ticker} -> $gt: ${tradeDate}`
-    );
-  }
 }
 
 export { insertTrade };
