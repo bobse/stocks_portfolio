@@ -5,14 +5,14 @@
       "tsx": false,
       "decorators": true,
       "dynamicImport": true
-    },
-    "target": "es2017",
-    "paths": {
-      "@routes/*": ["./src/*"]
-    },
-    "baseUrl": "."
+    }
   },
   "module": {
     "type": "commonjs"
+  },
+  "env": {
+    "targets": {
+      "node": 16
+    }
   }
 }

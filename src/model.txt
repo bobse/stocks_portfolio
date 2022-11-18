@@ -1,0 +1,29 @@
+TRANSACTIONS
+	date
+	user
+	ticker
+	price
+	amount (+ buy | - sell)
+	fees
+	profitLoss (only when selling)	
+	CurrAveragePrice
+	CurrTotalAmount 
+	extraInfo
+
+INCOMES
+	date
+	user
+	ticker
+	price
+	type (enum JCP|DIV)
+	extraInfo
+	
+
+STOCK (NOT USING)
+	name
+	ticker
+	lastUpdated
+	CurrAveragePrice
+	CurrTotalAmount 
+	active Boolean
+
