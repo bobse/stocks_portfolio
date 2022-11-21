@@ -69,4 +69,4 @@ const tradesSchema = new mongoose.Schema<ITradeSchema>({
 tradesSchema.index({ userEmail: 1, date: 1, ticker: 1 }, { unique: true });
 const Trade = mongoose.model<ITradeSchema>("Trade", tradesSchema);
 
-export { Trade };
+export { Trade, priceHelper };

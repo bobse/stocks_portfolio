@@ -17,7 +17,7 @@ async function httpAddNewTrade(req: express.Request, res: express.Response) {
       return res.status(201).json(response);
     }
   } catch (err: any) {
-    console.error(err);
+    // console.error(err);
     if (err._message === "Trade validation failed" && err.errors) {
       const response = new Map<string, string>();
       Object.keys(err.errors).forEach((key) => {
