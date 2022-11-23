@@ -1,7 +1,8 @@
 import supertest from "supertest";
 import { app, API_START_URL } from "../app";
 import { setupTestDb } from "./db-handler";
-import { Trade, priceHelper } from "../models/trades.schema";
+import { Trade } from "../models/trades.schema";
+import { setNumDecimals } from "../utils/numDecimals";
 
 setupTestDb();
 
@@ -43,7 +44,7 @@ describe("TRADES API - INSERT", () => {
           .expect("Content-Type", /json/)
           .expect(201);
         expect(res.body.currAvgPrice).toStrictEqual(
-          priceHelper.setPrice(totalInvested / totalAmount)
+          setNumDecimals(totalInvested / totalAmount)
         );
         expect(res.body.currTotalAmount).toStrictEqual(totalAmount);
       }
@@ -66,7 +67,7 @@ describe("TRADES API - INSERT", () => {
           .expect("Content-Type", /json/)
           .expect(201);
         expect(res.body.currAvgPrice).toStrictEqual(
-          priceHelper.setPrice(totalInvested / totalAmount)
+          setNumDecimals(totalInvested / totalAmount)
         );
       }
       const newInsertion = { ...validData };

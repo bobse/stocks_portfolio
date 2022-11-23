@@ -1,11 +1,7 @@
 import mongoose from "mongoose";
-import { ITradeSchema } from "@routes/interfaces/trades.interfaces";
+import { ITradeSchema } from "../interfaces/trades.interfaces";
+import { setNumDecimals } from "../utils/numDecimals";
 
-const priceHelper = {
-  setPrice: (num: number): number => {
-    return +(Math.round(num * 100) / 100).toFixed(2);
-  },
-};
 const tradesSchema = new mongoose.Schema<ITradeSchema>({
   date: {
     type: Date,
@@ -34,7 +30,7 @@ const tradesSchema = new mongoose.Schema<ITradeSchema>({
     type: Number,
     required: [true, "Invalid price"],
     min: 0,
-    set: priceHelper.setPrice,
+    set: setNumDecimals,
   },
   amount: {
     type: Number,
@@ -44,15 +40,15 @@ const tradesSchema = new mongoose.Schema<ITradeSchema>({
     type: Number,
     required: [true, "Invalid fee"],
     min: 0,
-    set: priceHelper.setPrice,
+    set: setNumDecimals,
   },
   profitAndLosses: {
     type: Number,
-    set: priceHelper.setPrice,
+    set: setNumDecimals,
   },
   currAvgPrice: {
     type: Number,
-    set: priceHelper.setPrice,
+    set: setNumDecimals,
     required: true,
   },
   currTotalAmount: {
@@ -69,4 +65,4 @@ const tradesSchema = new mongoose.Schema<ITradeSchema>({
 tradesSchema.index({ userEmail: 1, date: 1, ticker: 1 }, { unique: true });
 const Trade = mongoose.model<ITradeSchema>("Trade", tradesSchema);
 
-export { Trade, priceHelper };
+export { Trade };
