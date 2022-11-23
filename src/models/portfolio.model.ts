@@ -25,6 +25,11 @@ async function GetCurrPortfolio(userEmail: string): Promise<IPortfolio[]> {
         },
       },
     },
+    {
+      $sort: {
+        _id: 1,
+      },
+    },
   ];
   let results = await Trade.aggregate(agg);
   results = results.map((elm) => {
