@@ -1,9 +1,9 @@
 import express from "express";
-import { httpAddNewTrade, httpGetAllTrades } from "./trades.controller";
+import { httpAddNewTrade, httpGetTrades } from "./trades.controller";
 
 const tradesRouter = express.Router();
 
 tradesRouter.post("/", httpAddNewTrade);
-tradesRouter.get("/", httpGetAllTrades);
+tradesRouter.get("/:ticker?", httpGetTrades);
 
 export { tradesRouter };

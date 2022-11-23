@@ -1,6 +1,22 @@
 import { Trade } from "./trades.schema";
 import mongoose, { HydratedDocument } from "mongoose";
 import { ITradeSchema, INewUserTrade } from "../interfaces/trades.interfaces";
+import { getPaginatedResults } from "./pagination";
+
+async function getTrades(
+  userEmail: string,
+  ticker: string | undefined = undefined,
+  limit: number | undefined,
+  page: number | undefined
+) {
+  const filter = { userEmail: userEmail };
+  const sort = { ticker: 1, date: -1 };
+  if (ticker) {
+    Object.assign(filter, { ticker: ticker.toUpperCase() });
+  }
+
+  return await getPaginatedResults(Trade, filter, sort, limit, page);
+}
 
 async function insertTrade(data: INewUserTrade) {
   const newTrade: HydratedDocument<ITradeSchema> = new Trade({
@@ -160,4 +176,4 @@ async function setAllTradesAfterDateToRecalc(
   );
 }
 
-export { insertTrade };
+export { getTrades, insertTrade };
