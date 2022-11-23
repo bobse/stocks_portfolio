@@ -11,6 +11,9 @@ async function httpGetTrades(req: express.Request, res: express.Response) {
     if (req.query.limit) limit = queryParamToNumber(req.query.limit);
     if (req.query.page) page = queryParamToNumber(req.query.page);
     const trades = await getTrades(user, ticker, limit, page);
+    if (trades.pagination.totalCount === 0) {
+      return res.status(404).json(trades);
+    }
     return res.status(200).json(trades);
   } catch (err: any) {
     if (err.message) {
