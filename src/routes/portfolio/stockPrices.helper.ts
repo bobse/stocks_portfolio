@@ -1,6 +1,6 @@
 import axios from "axios";
 import { setNumDecimals } from "../../utils/numDecimals";
-import { IStockPrice } from "../../interfaces/portfolio.interfaces";
+import { IStockPrice } from "../../types/portfolio.interfaces";
 
 const yahooApiUrl =
   "https://query1.finance.yahoo.com/v8/finance/chart/<TICKER>.SA?region=BR&lang=en-US&includePrePost=false&interval=2m&useYfid=true&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance";

@@ -1,6 +1,6 @@
 import { Trade } from "./trades.schema";
 import mongoose, { HydratedDocument } from "mongoose";
-import { ITradeSchema, INewUserTrade } from "../interfaces/trades.interfaces";
+import { ITradeSchema, INewUserTrade } from "../types/trades.interfaces";
 import { getPaginatedResults } from "./pagination";
 
 async function getTrades(

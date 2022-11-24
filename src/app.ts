@@ -6,6 +6,7 @@ import { logger } from "./logger";
 
 const app = express();
 const API_START_URL = "/api/v1";
+
 app.use(
   cors({
     origin: "*",

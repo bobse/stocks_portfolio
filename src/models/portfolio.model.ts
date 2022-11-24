@@ -1,6 +1,6 @@
 import { Trade } from "./trades.schema";
 import mongoose from "mongoose";
-import { IPortfolio } from "../interfaces/portfolio.interfaces";
+import { IPortfolio } from "../types/portfolio.interfaces";
 
 async function GetCurrPortfolio(userEmail: string): Promise<IPortfolio[]> {
   const agg: mongoose.PipelineStage[] = [

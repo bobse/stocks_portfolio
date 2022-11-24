@@ -1,9 +1,9 @@
 import express from "express";
 import { GetCurrPortfolio } from "../../models/portfolio.model";
-import { IPortfolio } from "../../interfaces/portfolio.interfaces";
+import { IPortfolio } from "../../types/portfolio.interfaces";
 import { getStockPrice } from "./stockPrices.helper";
 import { setNumDecimals } from "../../utils/numDecimals";
-import { IStockPrice } from "../../interfaces/portfolio.interfaces";
+import { IStockPrice } from "../../types/portfolio.interfaces";
 
 // TODO: CONSIDER IF WE SHOULD GET STOCKPRICES TODAY IN THE BACKEND OR IN THE FRONTEND FOR FASTER RESPONSE
 async function httpGetCurrPortfolio(
@@ -12,8 +12,7 @@ async function httpGetCurrPortfolio(
 ) {
   try {
     // TODO: get user from AUTH
-    const user = "roberto@robertoseba.com";
-    const portfolio: IPortfolio[] = await GetCurrPortfolio(user);
+    const portfolio: IPortfolio[] = await GetCurrPortfolio(req.user);
     const stocksPricesToday = await Promise.all(
       portfolio.map((elem) => getStockPrice(elem.ticker))
     );

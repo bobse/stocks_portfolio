@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ITradeSchema } from "../interfaces/trades.interfaces";
+import { ITradeSchema } from "../types/trades.interfaces";
 import { setNumDecimals } from "../utils/numDecimals";
 
 const tradesSchema = new mongoose.Schema<ITradeSchema>({
