@@ -23,6 +23,7 @@ async function GetCurrPortfolio(userEmail: string): Promise<IPortfolio[]> {
         currTotalAmount: {
           $first: "$currTotalAmount",
         },
+        lastTrade: { $first: "$date" },
       },
     },
     {
