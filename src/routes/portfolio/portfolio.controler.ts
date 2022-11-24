@@ -11,8 +11,7 @@ async function httpGetCurrPortfolio(
   res: express.Response
 ) {
   try {
-    // TODO: get user from AUTH
-    const portfolio: IPortfolio[] = await GetCurrPortfolio(req.user);
+    const portfolio: IPortfolio[] = await GetCurrPortfolio(req.user.email);
     const stocksPricesToday = await Promise.all(
       portfolio.map((elem) => getStockPrice(elem.ticker))
     );

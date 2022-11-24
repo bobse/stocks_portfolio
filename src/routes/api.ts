@@ -1,7 +1,7 @@
 import express from "express";
 import { tradesRouter } from "./trades/trades.router";
 import { portfolioRouter } from "./portfolio/portfolio.router";
-import { checkLoggedIn } from "@routes/services/auth";
+import { checkLoggedIn } from "../services/auth";
 
 const api = express.Router();
 

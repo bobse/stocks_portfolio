@@ -3,14 +3,12 @@ import { insertTrade, getTrades } from "../../models/trades.model";
 
 async function httpGetTrades(req: express.Request, res: express.Response) {
   try {
-    // TODO: get user from AUTH
-    const user = "roberto@robertoseba.com";
     const { ticker } = req.params;
     let limit: number | undefined;
     let page: number | undefined;
     if (req.query.limit) limit = queryParamToNumber(req.query.limit);
     if (req.query.page) page = queryParamToNumber(req.query.page);
-    const trades = await getTrades(user, ticker, limit, page);
+    const trades = await getTrades(req.user.email, ticker, limit, page);
     if (trades.pagination.totalCount === 0) {
       return res.status(404).json(trades);
     }
@@ -34,10 +32,8 @@ function queryParamToNumber(param: Array<any> | any): number {
 
 async function httpAddNewTrade(req: express.Request, res: express.Response) {
   try {
-    // TODO: get user from AUTH
-    const user = "roberto@robertoseba.com";
     const data = req.body;
-    Object.assign(data, { userEmail: user });
+    Object.assign(data, { userEmail: req.user.email });
     const response = await insertTrade(data);
     if (response) {
       return res.status(201).json(response);
