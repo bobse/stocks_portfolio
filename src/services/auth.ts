@@ -9,7 +9,7 @@ function checkLoggedIn(
     name: "Roberto Seba",
     id: "xyz",
     lastLogin: new Date(),
-    email: "robertogseba@gmail.com",
+    email: "roberto@robertoseba.com",
   };
   //   const isLoggedIn = req.isAuthenticated() && req.user;
   //   if (!isLoggedIn) {

@@ -2,7 +2,7 @@ import express from "express";
 import { GetCurrPortfolio } from "../../models/portfolio.model";
 import { IPortfolio } from "../../types/portfolio.interfaces";
 import { getStockPrice } from "./stockPrices.helper";
-import { setNumDecimals } from "../../utils/numDecimals";
+import { setNumDecimals } from "../../utils/utils";
 import { IStockPrice } from "../../types/portfolio.interfaces";
 
 // TODO: CONSIDER IF WE SHOULD GET STOCKPRICES TODAY IN THE BACKEND OR IN THE FRONTEND FOR FASTER RESPONSE

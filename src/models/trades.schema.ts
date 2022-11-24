@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ITradeSchema } from "../types/trades.interfaces";
-import { setNumDecimals } from "../utils/numDecimals";
+import { setNumDecimals } from "../utils/utils";
 
 const tradesSchema = new mongoose.Schema<ITradeSchema>({
   date: {

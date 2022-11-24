@@ -1,5 +1,5 @@
 import axios from "axios";
-import { setNumDecimals } from "../../utils/numDecimals";
+import { setNumDecimals } from "../../utils/utils";
 import { IStockPrice } from "../../types/portfolio.interfaces";
 
 const yahooApiUrl =

@@ -2,7 +2,7 @@ import supertest from "supertest";
 import { app, API_START_URL } from "../app";
 import { setupTestDb } from "./db-handler";
 import { Trade } from "../models/trades.schema";
-import { setNumDecimals } from "../utils/numDecimals";
+import { setNumDecimals } from "../utils/utils";
 
 setupTestDb();
 
