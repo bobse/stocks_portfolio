@@ -1,5 +1,3 @@
-import { error } from "console";
-
 function setNumDecimals(num: number): number {
   return +(Math.round(num * 100) / 100).toFixed(2);
 }
@@ -48,4 +46,11 @@ function parseErrorValidationMessages(err: any) {
   return Object.fromEntries(response);
 }
 
-export { setNumDecimals, getPagination, parseErrorsResponse };
+function yearParamConvert(year: string | "all"): number | undefined {
+  if (year === "all" || isNaN(+year)) {
+    return undefined;
+  }
+  return +year;
+}
+
+export { setNumDecimals, getPagination, parseErrorsResponse, yearParamConvert };

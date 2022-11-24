@@ -1,23 +1,29 @@
 import express from "express";
 import {
   insertIncome,
-  getIncome,
+  getIncomes,
   getTotalIncomes,
 } from "../../models/income.model";
-import { getPagination, parseErrorsResponse } from "../../utils/utils";
+import {
+  getPagination,
+  parseErrorsResponse,
+  yearParamConvert,
+} from "../../utils/utils";
 
 async function httpGetIncomes(req: express.Request, res: express.Response) {
   try {
-    const { ticker } = req.params;
+    const ticker = req.params.ticker;
+    const year = yearParamConvert(req.params.year);
     const incomeCategory =
       typeof req.query.category === "string" || req.query.category === undefined
         ? req.query.category
         : req.query.category[0];
     const { limit, page } = getPagination(req.query.limit, req.query.page);
-    const incomes = await getIncome(
+    const incomes = await getIncomes(
       req.user.email,
       ticker,
       incomeCategory,
+      year,
       limit,
       page
     );
@@ -25,6 +31,7 @@ async function httpGetIncomes(req: express.Request, res: express.Response) {
       return res.status(404).json(incomes);
     }
     return res.status(200).json(incomes);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     const response = parseErrorsResponse(err, "Could not get list of incomes");
     return res.status(500).json(response);
@@ -40,7 +47,7 @@ async function httpGetTotalIncomes(
     const totals = await getTotalIncomes(req.user.email, ticker, +year);
 
     return res.status(200).json(totals);
-  } catch (err: any) {
+  } catch (err) {
     const response = parseErrorsResponse(
       err,
       "Could not get totals. Please try again"
@@ -57,7 +64,7 @@ async function httpInsertIncome(req: express.Request, res: express.Response) {
     if (income) {
       return res.status(201).json(income);
     }
-  } catch (err: any) {
+  } catch (err) {
     const response = parseErrorsResponse(err, "Could not save this new income");
     return res.status(500).json(response);
   }

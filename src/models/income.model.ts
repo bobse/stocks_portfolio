@@ -10,10 +10,11 @@ async function insertIncome(data: IIncome) {
   });
   return await newIncome.save();
 }
-async function getIncome(
+async function getIncomes(
   userEmail: string,
   ticker: string | undefined = undefined,
   category: incomeType | undefined,
+  year: number | undefined = undefined,
   limit: number | undefined,
   page: number | undefined
 ) {
@@ -24,6 +25,9 @@ async function getIncome(
   }
   if (category) {
     Object.assign(filter, { category: category.toUpperCase() });
+  }
+  if (year) {
+    Object.assign(filter, { year: year });
   }
   return await getPaginatedResults(Income, filter, sort, limit, page);
 }
@@ -91,4 +95,4 @@ async function getTotalIncomes(
 
   return results;
 }
-export { insertIncome, getIncome, getTotalIncomes };
+export { insertIncome, getIncomes, getTotalIncomes };

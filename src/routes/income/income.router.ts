@@ -8,7 +8,8 @@ import {
 const incomeRouter = express.Router();
 
 incomeRouter.post("/", httpInsertIncome);
-incomeRouter.get("/totals/:ticker?/:year?", httpGetTotalIncomes);
-incomeRouter.get("/:ticker?", httpGetIncomes);
+incomeRouter.get("/totals/:year?/:ticker?", httpGetTotalIncomes);
+// all years = "all"
+incomeRouter.get("/:year?/:ticker?", httpGetIncomes);
 
 export { incomeRouter };

@@ -6,6 +6,7 @@ import { getPaginatedResults } from "./pagination";
 async function getTrades(
   userEmail: string,
   ticker: string | undefined = undefined,
+  year: number | undefined = undefined,
   limit: number | undefined,
   page: number | undefined
 ) {
@@ -14,7 +15,9 @@ async function getTrades(
   if (ticker) {
     Object.assign(filter, { ticker: ticker.toUpperCase() });
   }
-
+  if (year) {
+    Object.assign(filter, { year: year });
+  }
   return await getPaginatedResults(Trade, filter, sort, limit, page);
 }
 
@@ -79,7 +82,7 @@ async function calcAndSaveNewTrade(
     oldAvgPrice = oldTrade.currAvgPrice;
     oldTotalAmount = oldTrade.currTotalAmount;
   }
-  const { currAvgPrice, currTotalAmount } = calculateNewAvgPrice(
+  const { currAvgPrice, currTotalAmount } = calcNewAvgPrice(
     newTrade.price,
     newTrade.amount,
     newTrade.fees,
@@ -88,10 +91,13 @@ async function calcAndSaveNewTrade(
   );
   newTrade.currAvgPrice = currAvgPrice;
   newTrade.currTotalAmount = currTotalAmount;
+  if (newTrade.amount < 0) {
+    newTrade.profitAndLosses = calcProfits(newTrade);
+  }
   return await newTrade.save();
 }
 
-function calculateNewAvgPrice(
+function calcNewAvgPrice(
   newPrice: number,
   newAmount: number,
   newFees: number,
@@ -119,6 +125,14 @@ function checkTotalAmountValid(totalAmount: number) {
       "Total amount can not be negative. Trying to sell more than in custody"
     );
   }
+}
+
+// MAYBE WE SHOULD CALC THIS IN THE FRONTEND
+function calcProfits(newTrade: HydratedDocument<ITradeSchema>) {
+  return (
+    (newTrade.price - newTrade.currAvgPrice) * Math.abs(newTrade.amount) -
+    newTrade.fees
+  );
 }
 
 async function getPreviousTrade(

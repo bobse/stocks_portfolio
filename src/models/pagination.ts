@@ -23,6 +23,13 @@ async function getPaginatedResults(
 
   const agg: mongoose.PipelineStage[] = [
     {
+      $addFields: {
+        year: {
+          $year: "$date",
+        },
+      },
+    },
+    {
       $match: filter,
     },
     {
