@@ -26,6 +26,11 @@ async function GetCurrPortfolio(userEmail: string): Promise<IPortfolio[]> {
       },
     },
     {
+      $match: {
+        currTotalAmount: { $gt: 0 },
+      },
+    },
+    {
       $sort: {
         _id: 1,
       },
