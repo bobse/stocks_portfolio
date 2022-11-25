@@ -14,10 +14,11 @@ async function httpGetIncomes(req: express.Request, res: express.Response) {
   try {
     const ticker = req.params.ticker;
     const year = yearParamConvert(req.params.year);
+    if (req.query.category instanceof Array) {
+      req.query.category = req.query.category[0];
+    }
     const incomeCategory =
-      typeof req.query.category === "string" || req.query.category === undefined
-        ? req.query.category
-        : req.query.category[0];
+      typeof req.query.category === "string" ? req.query.category : undefined;
     const { limit, page } = getPagination(req.query.limit, req.query.page);
     const incomes = await getIncomes(
       req.user.email,
@@ -31,8 +32,7 @@ async function httpGetIncomes(req: express.Request, res: express.Response) {
       return res.status(404).json(incomes);
     }
     return res.status(200).json(incomes);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
+  } catch (err) {
     const response = parseErrorsResponse(err, "Could not get list of incomes");
     return res.status(500).json(response);
   }
@@ -43,8 +43,9 @@ async function httpGetTotalIncomes(
   res: express.Response
 ) {
   try {
-    const { ticker, year } = req.params;
-    const totals = await getTotalIncomes(req.user.email, ticker, +year);
+    const { ticker } = req.params;
+    const year = yearParamConvert(req.params.year);
+    const totals = await getTotalIncomes(req.user.email, ticker, year);
 
     return res.status(200).json(totals);
   } catch (err) {

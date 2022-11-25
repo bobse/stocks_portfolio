@@ -1,7 +1,7 @@
 import { Income } from "./income.schema";
 import { HydratedDocument } from "mongoose";
 import mongoose from "mongoose";
-import { IIncome, incomeType } from "../types/income.interfaces";
+import { IIncome } from "../types/income.interfaces";
 import { getPaginatedResults } from "./pagination";
 
 async function insertIncome(data: IIncome) {
@@ -13,7 +13,7 @@ async function insertIncome(data: IIncome) {
 async function getIncomes(
   userEmail: string,
   ticker: string | undefined = undefined,
-  category: incomeType | undefined,
+  category: string | undefined,
   year: number | undefined = undefined,
   limit: number | undefined,
   page: number | undefined
