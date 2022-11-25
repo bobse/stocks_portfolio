@@ -1,14 +1,13 @@
 import express from "express";
+import { validateOrReject } from "class-validator";
 import {
   insertIncome,
   getIncomes,
   getTotalIncomes,
 } from "../../models/income.model";
-import {
-  getPagination,
-  parseErrorsResponse,
-  yearParamConvert,
-} from "../../utils/utils";
+import { parseErrorsResponse } from "../../utils/utils";
+import { IncomeUserDTO } from "../../DTO/income.dto";
+import { validatePagination, yearParamConvert } from "../../utils/validators";
 
 async function httpGetIncomes(req: express.Request, res: express.Response) {
   try {
@@ -19,7 +18,7 @@ async function httpGetIncomes(req: express.Request, res: express.Response) {
     }
     const incomeCategory =
       typeof req.query.category === "string" ? req.query.category : undefined;
-    const { limit, page } = getPagination(req.query.limit, req.query.page);
+    const { limit, page } = validatePagination(req.query.limit, req.query.page);
     const incomes = await getIncomes(
       req.user.email,
       ticker,
@@ -59,8 +58,9 @@ async function httpGetTotalIncomes(
 
 async function httpInsertIncome(req: express.Request, res: express.Response) {
   try {
-    const data = req.body;
+    const data = new IncomeUserDTO(req.body);
     Object.assign(data, { userEmail: req.user.email });
+    await validateOrReject(data);
     const income = await insertIncome(data);
     if (income) {
       return res.status(201).json(income);

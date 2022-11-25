@@ -4,6 +4,7 @@ import { IPortfolio } from "../../types/portfolio.interfaces";
 import { getStockPrice } from "./stockPrices.helper";
 import { setNumDecimals } from "../../utils/utils";
 import { IStockPrice } from "../../types/portfolio.interfaces";
+import { parseErrorsResponse } from "../../utils/utils";
 
 // TODO: CONSIDER IF WE SHOULD GET STOCKPRICES TODAY IN THE BACKEND OR IN THE FRONTEND FOR FASTER RESPONSE
 async function httpGetCurrPortfolio(
@@ -17,14 +18,13 @@ async function httpGetCurrPortfolio(
     );
     updatePortfolioWithTodayPrices(portfolio, stocksPricesToday);
     return res.status(200).json(portfolio);
-  } catch (err: any) {
+  } catch (err) {
     console.log(err);
-    if (err.message) {
-      return res.status(500).json({ error: err.message });
-    }
-    return res
-      .status(500)
-      .json({ error: "Sorry, could not retrieve stock portfolio" });
+    const response = parseErrorsResponse(
+      err,
+      "Sorry, could not retrieve stock portfolio"
+    );
+    return res.status(500).json(response);
   }
 }
 

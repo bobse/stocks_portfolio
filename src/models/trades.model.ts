@@ -1,7 +1,8 @@
 import { Trade } from "./trades.schema";
 import mongoose, { HydratedDocument } from "mongoose";
-import { ITradeSchema, INewUserTrade } from "../types/trades.interfaces";
+import { ITradeSchema } from "../types/trades.interfaces";
 import { getPaginatedResults } from "./pagination";
+import { TradesDTO } from "../DTO/trades.dto";
 
 async function getTrades(
   userEmail: string,
@@ -21,7 +22,7 @@ async function getTrades(
   return await getPaginatedResults(Trade, filter, sort, limit, page);
 }
 
-async function insertTrade(data: INewUserTrade) {
+async function insertTrade(data: TradesDTO) {
   const newTrade: HydratedDocument<ITradeSchema> = new Trade({
     ...data,
   });

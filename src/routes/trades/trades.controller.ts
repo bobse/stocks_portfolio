@@ -1,16 +1,15 @@
 import express from "express";
+import { validateOrReject } from "class-validator";
 import { insertTrade, getTrades } from "../../models/trades.model";
-import {
-  getPagination,
-  parseErrorsResponse,
-  yearParamConvert,
-} from "../../utils/utils";
+import { parseErrorsResponse } from "../../utils/utils";
+import { validatePagination, yearParamConvert } from "../../utils/validators";
+import { TradesDTO } from "../../DTO/trades.dto";
 
 async function httpGetTrades(req: express.Request, res: express.Response) {
   try {
     const ticker = req.params.ticker;
     const year = yearParamConvert(req.params.year);
-    const { limit, page } = getPagination(req.query.limit, req.query.page);
+    const { limit, page } = validatePagination(req.query.limit, req.query.page);
     const trades = await getTrades(req.user.email, ticker, year, limit, page);
     if (trades.pagination.totalCount === 0) {
       return res.status(404).json(trades);
@@ -25,8 +24,9 @@ async function httpGetTrades(req: express.Request, res: express.Response) {
 
 async function httpAddNewTrade(req: express.Request, res: express.Response) {
   try {
-    const data = req.body;
+    const data = new TradesDTO(req.body);
     Object.assign(data, { userEmail: req.user.email });
+    await validateOrReject(data);
     const response = await insertTrade(data);
     if (response) {
       return res.status(201).json(response);

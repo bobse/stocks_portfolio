@@ -35,6 +35,7 @@ const tradesSchema = new mongoose.Schema<IIncome>({
   category: {
     type: String,
     required: true,
+    uppercase: true,
     enum: incomeType,
   },
 });

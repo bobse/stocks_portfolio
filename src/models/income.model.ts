@@ -3,8 +3,9 @@ import { HydratedDocument } from "mongoose";
 import mongoose from "mongoose";
 import { IIncome } from "../types/income.interfaces";
 import { getPaginatedResults } from "./pagination";
+import { IncomeUserDTO } from "../DTO/income.dto";
 
-async function insertIncome(data: IIncome) {
+async function insertIncome(data: IncomeUserDTO) {
   const newIncome: HydratedDocument<IIncome> = new Income({
     ...data,
   });
