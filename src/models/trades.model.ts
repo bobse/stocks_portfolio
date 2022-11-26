@@ -12,7 +12,10 @@ async function getTrades(
   page: number | undefined
 ) {
   const filter = { userEmail: userEmail };
-  const sort = { ticker: 1, date: -1 };
+  const sort: Record<string, 1 | -1 | mongoose.Expression.Meta> = {
+    ticker: 1,
+    date: -1,
+  };
   if (ticker) {
     Object.assign(filter, { ticker: ticker.toUpperCase() });
   }
@@ -37,11 +40,7 @@ async function insertTrade(data: TradesDTO) {
   if (newTrade.date > latestTrade.date)
     return await calcAndSaveNewTrade(newTrade, latestTrade);
 
-  const previousTrade = await getPreviousTrade(
-    data.userEmail,
-    data.ticker,
-    data.date
-  );
+  const previousTrade = await getPreviousTrade(newTrade);
 
   if (previousTrade) {
     await calcAndSaveNewTrade(newTrade, previousTrade);
@@ -51,6 +50,33 @@ async function insertTrade(data: TradesDTO) {
   }
   await updateAvgAndTotalTrades(newTrade);
   return newTrade;
+}
+
+async function deleteTrade(
+  userEmail: string,
+  _id: mongoose.Types.ObjectId | string
+) {
+  const deletedTrade = await Trade.findOneAndDelete({
+    userEmail: userEmail,
+    _id: _id,
+  });
+  if (deletedTrade) {
+    const tradesCount = await Trade.count({});
+    if (tradesCount > 0) {
+      const previousTrade = await getPreviousTrade(deletedTrade);
+      if (previousTrade) {
+        await updateAvgAndTotalTrades(previousTrade);
+      } else {
+        // First trade in the list. Must recalculate all trades
+        const nextTrade = await getNextTrade(deletedTrade);
+        if (nextTrade) {
+          const firstTrade = await calcAndSaveNewTrade(nextTrade);
+          await updateAvgAndTotalTrades(firstTrade);
+        }
+      }
+    }
+  }
+  return deletedTrade;
 }
 
 async function tradeExists(
@@ -137,16 +163,25 @@ function calcProfits(newTrade: HydratedDocument<ITradeSchema>) {
 }
 
 async function getPreviousTrade(
-  userEmail: string,
-  ticker: string,
-  currTradeDate: Date
+  trade: HydratedDocument<ITradeSchema> | ITradeSchema
 ) {
   const previousTrade = await Trade.findOne({
-    userEmail: userEmail,
-    ticker: ticker,
-    date: { $lt: currTradeDate },
+    userEmail: trade.userEmail,
+    ticker: trade.ticker,
+    date: { $lt: trade.date },
   }).sort("-date");
   return previousTrade;
+}
+
+async function getNextTrade(
+  trade: HydratedDocument<ITradeSchema> | ITradeSchema
+) {
+  const nextTrade = await Trade.findOne({
+    userEmail: trade.userEmail,
+    ticker: trade.ticker,
+    date: { $gt: trade.date },
+  }).sort("date");
+  return nextTrade;
 }
 
 async function updateAvgAndTotalTrades(
@@ -191,4 +226,4 @@ async function setAllTradesAfterDateToRecalc(
   );
 }
 
-export { getTrades, insertTrade };
+export { getTrades, insertTrade, deleteTrade };

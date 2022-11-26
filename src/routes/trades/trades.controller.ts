@@ -1,6 +1,6 @@
 import express from "express";
-import { validateOrReject } from "class-validator";
-import { insertTrade, getTrades } from "../../models/trades.model";
+import { validateOrReject, isMongoId } from "class-validator";
+import { insertTrade, getTrades, deleteTrade } from "../../models/trades.model";
 import { parseErrorsResponse } from "../../utils/utils";
 import { validatePagination, yearParamConvert } from "../../utils/validators";
 import { TradesDTO } from "../../DTO/trades.dto";
@@ -39,4 +39,22 @@ async function httpAddNewTrade(req: express.Request, res: express.Response) {
   }
 }
 
-export { httpGetTrades, httpAddNewTrade };
+async function httpDeleteTrade(req: express.Request, res: express.Response) {
+  try {
+    if (isMongoId(req.body._id)) {
+      const response = await deleteTrade(req.user.email, req.body._id);
+      if (response) {
+        return res.status(204).json();
+      } else {
+        return res.status(404).json({ error: "Could not find id" });
+      }
+    } else {
+      throw new Error("Must provide a valid Mongo Id for deletion.");
+    }
+  } catch (err) {
+    const response = parseErrorsResponse(err, "Could not delete this trade");
+    return res.status(500).json(response);
+  }
+}
+
+export { httpGetTrades, httpAddNewTrade, httpDeleteTrade };

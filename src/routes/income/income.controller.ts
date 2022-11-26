@@ -1,9 +1,11 @@
 import express from "express";
-import { validateOrReject } from "class-validator";
+import { isMongoId, validateOrReject } from "class-validator";
 import {
   insertIncome,
   getIncomes,
   getTotalIncomes,
+  deleteIncome,
+  updateIncome,
 } from "../../models/income.model";
 import { parseErrorsResponse } from "../../utils/utils";
 import { IncomeUserDTO } from "../../DTO/income.dto";
@@ -45,7 +47,6 @@ async function httpGetTotalIncomes(
     const { ticker } = req.params;
     const year = yearParamConvert(req.params.year);
     const totals = await getTotalIncomes(req.user.email, ticker, year);
-
     return res.status(200).json(totals);
   } catch (err) {
     const response = parseErrorsResponse(
@@ -62,13 +63,58 @@ async function httpInsertIncome(req: express.Request, res: express.Response) {
     Object.assign(data, { userEmail: req.user.email });
     await validateOrReject(data);
     const income = await insertIncome(data);
-    if (income) {
-      return res.status(201).json(income);
-    }
+    return res.status(201).json(income);
   } catch (err) {
     const response = parseErrorsResponse(err, "Could not save this new income");
     return res.status(500).json(response);
   }
 }
 
-export { httpGetIncomes, httpInsertIncome, httpGetTotalIncomes };
+async function httpDeleteIncome(req: express.Request, res: express.Response) {
+  try {
+    if (isMongoId(req.body._id)) {
+      const response = await deleteIncome(req.user.email, req.body._id);
+      if (response) {
+        return res.status(204).json();
+      } else {
+        return res.status(404).json({ error: "Could not find id" });
+      }
+    } else {
+      throw new Error("Must provide a valid Mongo Id for deletion.");
+    }
+  } catch (err) {
+    const response = parseErrorsResponse(
+      err,
+      "Could not delete this new income"
+    );
+    return res.status(500).json(response);
+  }
+}
+
+async function httpUpdateIncome(req: express.Request, res: express.Response) {
+  try {
+    const data = new IncomeUserDTO(req.body);
+    Object.assign(data, { userEmail: req.user.email });
+    await validateOrReject(data);
+    const income = await updateIncome(data);
+    if (income) {
+      return res.status(200).json(income);
+    } else {
+      return res.status(404).json({ error: "Could not find id" });
+    }
+  } catch (err) {
+    const response = parseErrorsResponse(
+      err,
+      "Could not delete this new income"
+    );
+    return res.status(500).json(response);
+  }
+}
+
+export {
+  httpGetIncomes,
+  httpInsertIncome,
+  httpGetTotalIncomes,
+  httpDeleteIncome,
+  httpUpdateIncome,
+};
