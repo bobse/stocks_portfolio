@@ -20,7 +20,10 @@ async function getIncomes(
   page: number | undefined
 ) {
   const filter = { userEmail: userEmail };
-  const sort = { ticker: 1, date: -1 };
+  const sort: Record<string, 1 | -1 | mongoose.Expression.Meta> = {
+    ticker: 1,
+    date: -1,
+  };
   if (ticker) {
     Object.assign(filter, { ticker: ticker.toUpperCase() });
   }
@@ -96,4 +99,31 @@ async function getTotalIncomes(
 
   return results;
 }
-export { insertIncome, getIncomes, getTotalIncomes };
+
+async function deleteIncome(
+  userEmail: string,
+  _id: mongoose.Types.ObjectId | string
+) {
+  const deletedIncome = await Income.findOneAndDelete({
+    userEmail: userEmail,
+    _id: _id,
+  });
+  return deletedIncome;
+}
+
+async function updateIncome(data: IncomeUserDTO) {
+  const updateDoc = await Income.findOneAndUpdate(
+    { _id: data._id, userEmail: data.userEmail },
+    data,
+    { runValidators: true, returnDocument: "after" }
+  );
+  return updateDoc;
+}
+
+export {
+  insertIncome,
+  getIncomes,
+  getTotalIncomes,
+  deleteIncome,
+  updateIncome,
+};

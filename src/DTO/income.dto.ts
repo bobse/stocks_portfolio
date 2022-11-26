@@ -1,7 +1,22 @@
 import { incomeType } from "../types/income.interfaces";
-import { IsEmail, Matches, IsIn, IsNumber, Min, IsDate } from "class-validator";
+import {
+  IsEmail,
+  Matches,
+  IsIn,
+  IsNumber,
+  Min,
+  IsDate,
+  IsOptional,
+  IsMongoId,
+} from "class-validator";
 
 class IncomeUserDTO {
+  @IsOptional()
+  @IsMongoId({
+    message: "Invalid Mongo Id",
+  })
+  _id: string;
+
   @IsDate({
     message: "Invalid date format",
   })
@@ -31,12 +46,14 @@ class IncomeUserDTO {
   value: number;
 
   constructor(data: {
+    _id: string;
     date: Date;
     userEmail: string;
     ticker: string;
     category: string;
     value: string | number;
   }) {
+    this._id = data._id;
     this.date = new Date(data.date);
     this.userEmail = data.userEmail;
     this.ticker =
