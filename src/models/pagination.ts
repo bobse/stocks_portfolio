@@ -12,9 +12,9 @@ interface paginatedResults {
 }
 
 async function getPaginatedResults(
-  model: mongoose.Model<T>,
-  filter: mongoose.FilterQuery<T>,
-  sort: any,
+  model: mongoose.Model<any>,
+  filter: mongoose.FilterQuery<any>,
+  sort: Record<string, 1 | -1 | mongoose.Expression.Meta>,
   limit: number | undefined,
   page: number | undefined
 ): Promise<paginatedResults> {
