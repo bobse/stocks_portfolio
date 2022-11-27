@@ -1,4 +1,4 @@
-import { IsEmail, Matches, IsIn, IsNumber, Min, IsDate } from "class-validator";
+import { IsEmail, Matches, IsNumber, Min, IsDate } from "class-validator";
 
 class TradesDTO {
   @IsDate({
