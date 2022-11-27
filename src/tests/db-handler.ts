@@ -8,46 +8,46 @@ let mongodb: MongoMemoryServer;
  * Connect to the in-memory database.
  */
 async function connectTestDb() {
-  mongodb = await MongoMemoryServer.create();
-  const uri = mongodb.getUri();
-  await mongoose.connect(uri);
+   mongodb = await MongoMemoryServer.create();
+   const uri = mongodb.getUri();
+   await mongoose.connect(uri);
 }
 
 /**
  * Drop database, close the connection and stop mongod.
  */
 async function closeTestDb() {
-  if (mongodb) {
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongodb.stop();
-  }
+   if (mongodb) {
+      await mongoose.connection.dropDatabase();
+      await mongoose.connection.close();
+      await mongodb.stop();
+   }
 }
 
 /**
  * Remove all the data for all db collections.
  */
 async function clearTestDb() {
-  if (mongodb) {
-    const collections = mongoose.connection.collections;
-    for (const key in collections) {
-      const collection = collections[key];
-      await collection.deleteMany({});
-    }
-  }
+   if (mongodb) {
+      const collections = mongoose.connection.collections;
+      for (const key in collections) {
+         const collection = collections[key];
+         await collection.deleteMany({});
+      }
+   }
 }
 
 async function setupTestDb() {
-  beforeAll(async () => {
-    await connectTestDb();
-  });
+   beforeAll(async () => {
+      await connectTestDb();
+   });
 
-  afterEach(async () => {
-    await clearTestDb();
-  });
+   afterEach(async () => {
+      await clearTestDb();
+   });
 
-  afterAll(async () => {
-    await closeTestDb();
-  });
+   afterAll(async () => {
+      await closeTestDb();
+   });
 }
 export { setupTestDb };

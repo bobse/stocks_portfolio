@@ -1,10 +1,10 @@
 import express from "express";
 import {
-  httpGetIncomes,
-  httpInsertIncome,
-  httpGetTotalIncomes,
-  httpDeleteIncome,
-  httpUpdateIncome,
+   httpGetIncomes,
+   httpInsertIncome,
+   httpGetTotalIncomes,
+   httpDeleteIncome,
+   httpUpdateIncome,
 } from "./income.controller";
 
 const incomeRouter = express.Router();

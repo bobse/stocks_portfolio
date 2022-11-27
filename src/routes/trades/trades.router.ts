@@ -1,8 +1,8 @@
 import express from "express";
 import {
-  httpAddNewTrade,
-  httpGetTrades,
-  httpDeleteTrade,
+   httpAddNewTrade,
+   httpGetTrades,
+   httpDeleteTrade,
 } from "./trades.controller";
 
 const tradesRouter = express.Router();
