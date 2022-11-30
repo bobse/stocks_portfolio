@@ -1,66 +1,73 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Box, HStack, Spacer, VStack, Text, Flex } from "@chakra-ui/react";
 import { ThreeDots } from "../../components/ThreeDots/ThreeDots";
 import { LabeledInfo } from "../../components/LabeledInfo/LabeledInfo";
 import { TopTotal } from "../../components/TopTotal/TopTotal";
+import { APIPORTFOLIO } from "../../constants";
 
 export const Portfolio = (props) => {
-   const testData = [
-      {
-         ticker: "PETR4",
-         currAvgPrice: 20.01,
-         currTotalAmount: 100,
-         totalIncome: 2000.0,
-         lastTrade: "2023-01-01T12:25:43.159Z",
-         today: {
-            percentage: 2.1,
-            price: 24.36,
-         },
-         profits: {
-            value: 435,
-            percentage: 21.74,
-         },
-      },
-      {
-         ticker: "VALE5",
-         currAvgPrice: 20.01,
-         currTotalAmount: 100,
-         totalIncome: 2000.0,
-         lastTrade: "2023-01-01T12:25:43.159Z",
-         today: {
-            percentage: 2.1,
-            price: 24.36,
-         },
-         profits: {
-            value: -435,
-            percentage: -21.74,
-         },
-      },
-      {
-         ticker: "AESB3",
-         currAvgPrice: 20.01,
-         currTotalAmount: 100,
-         totalIncome: 2000.0,
-         lastTrade: "2023-01-01T12:25:43.159Z",
-         today: {
-            percentage: 2.1,
-            price: 24.36,
-         },
-         profits: {
-            value: 435,
-            percentage: 21.74,
-         },
-      },
-   ];
+   const [portfolioData, setPortfolioData] = useState([]);
+   const [totals, setTotals] = useState({
+      totalInvested: 0,
+      currTotalValue: 0,
+      totalPL: 0,
+      totalPLPerc: 0,
+   });
+
+   useEffect(() => {
+      async function refreshPortfolio() {
+         try {
+            const response = await axios.get(APIPORTFOLIO);
+            if (response.data.length > 0) {
+               setPortfolioData(response.data);
+               updateTotals(response.data);
+            }
+         } catch (err) {
+            console.log(err);
+         }
+      }
+
+      function updateTotals(data) {
+         const totalInvested = data.reduce((prev, elem) => {
+            return elem.currAvgPrice * elem.currTotalAmount + prev;
+         }, 0);
+         const currTotalValue = data.reduce((prev, elem) => {
+            return elem.today.price * elem.currTotalAmount + prev;
+         }, 0);
+         const totalPL = currTotalValue - totalInvested;
+         const totalPLPerc = (currTotalValue / totalInvested - 1) * 100;
+         setTotals({ totalInvested, currTotalValue, totalPL, totalPLPerc });
+      }
+      refreshPortfolio();
+   }, []);
+
    return (
       <>
-         <Flex>
-            <TopTotal value={5000} text="total invested" type="value" />
-            <TopTotal value={2000.02} text="total P&L" type="value" />
-            <TopTotal value={20.2} text="total P&L %" type="perc" />
+         <Flex flexWrap={"wrap"} mb={4}>
+            <TopTotal
+               value={totals.totalInvested}
+               text="total invested"
+               type="value"
+            />
+            <TopTotal
+               value={totals.currTotalValue}
+               text="curr. value"
+               type="value"
+            />
+            <TopTotal
+               value={totals.totalPL}
+               text="total PROFITS"
+               type="value"
+            />
+            <TopTotal
+               value={totals.totalPLPerc}
+               text="total PROFITS %"
+               type="perc"
+            />
          </Flex>
-         <VStack p={0} w="full" overflow={"scroll"} maxH="85%" pb={6}>
-            {testData.map((data, idx) => (
+         <VStack w="full" overflow={"scroll"} h="70vh" pb={10}>
+            {portfolioData.map((data, idx) => (
                <PortfolioCard key={idx} data={data} />
             ))}
          </VStack>
@@ -73,10 +80,9 @@ const PortfolioCard = (props) => {
       <Box
          borderRadius={6}
          border="1px"
-         borderColor={"gray.700"}
+         borderColor={props.data.profits.value > 0 ? "green.800" : "red.800"}
          p={2}
          w="full"
-         mb={4}
       >
          <VStack>
             <Flex w="full" p={0}>
@@ -126,6 +132,7 @@ const PortfolioCard = (props) => {
                color={props.data.profits.value > 0 ? "green.400" : "red.400"}
                fontSize={"xs"}
                borderTop="1px"
+               borderTopColor={"gray.700"}
                pt={2}
                px={2}
                fontWeight={"bold"}

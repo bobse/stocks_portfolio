@@ -1,24 +1,14 @@
-var API_SERVER, REACT_SERVER;
-if (process.env.NODE_ENV === 'production') {
-  API_SERVER = 'https://directorscut-q2mgsgixya-uc.a.run.app/';
-  REACT_SERVER = 'https://directorscut.robertoseba.com';
+let HOST = "";
+if (process.env.NODE_ENV === "production") {
+   const PORT = process.env.PORT || "5000";
+   HOST = `http://localhost:${PORT}`;
 } else {
-  API_SERVER = 'http://192.168.15.10:8000';
-  REACT_SERVER = 'http://192.168.15.10:3000';
+   HOST = "http://192.168.15.10:5000";
 }
 
-export const SERVER = API_SERVER;
-export const APIUSER = API_SERVER + '/api/account/silentauth/';
-export const APILOGIN = API_SERVER + '/api/account/login/';
-export const APIUPDATEUSER = API_SERVER + '/api/account/update/';
-export const APISIGNUP = API_SERVER + '/api/account/create/';
-export const APISEARCH = API_SERVER + '/api/core/directors/';
-export const APITRENDING = API_SERVER + '/api/core/directors/trending/';
-export const APIVERIFYEMAIL = API_SERVER + '/api/account/verify/';
-export const APIFORGOTPASSWORD = API_SERVER + '/api/account/forgotpassword/';
-export const APINEWPASSWORD = API_SERVER + '/api/account/newpassword/';
-export const APILOGOUT = API_SERVER + '/api/account/logout/';
-export const APIADDIMDBDIRECTOR = API_SERVER + '/api/core/directors/add/';
-export const APIDIRECTOR = API_SERVER + '/api/core/user/directors/';
-export const APIMOVIE_WISH_WATCH = API_SERVER + '/api/core/user/movies/';
-export const LOGOUT = REACT_SERVER;
+export const APIHOST = `${HOST}/api/v1`;
+export const APIPORTFOLIO = `${APIHOST}/portfolio`;
+export const APITRADES = `${APIHOST}/trades`;
+export const APITOTALTRADES = `${APIHOST}/trades/totals`;
+export const APIINCOMES = `${APIHOST}/incomes`;
+export const APITOTALINCOMES = `${APIHOST}/incomes/totals`;

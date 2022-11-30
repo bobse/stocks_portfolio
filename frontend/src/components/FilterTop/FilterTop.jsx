@@ -1,11 +1,10 @@
 import { Box, Flex, Select } from "@chakra-ui/react";
-const getTickers = () => {
-   return ["PETR4", "VALE5", "AESB3"];
-};
+
 export const FilterTop = (props) => {
    const years = [...Array(30).keys()].map(
       (elem) => new Date().getFullYear() - elem
    );
+
    return (
       <Flex alignItems={"flex-start"} wrap="wrap">
          <Select
@@ -15,7 +14,12 @@ export const FilterTop = (props) => {
             icon={"none"}
             ml={-3}
             _focusVisible={false}
-            defaultValue={props.year}
+            defaultValue={props.filters.year}
+            onChange={(e) => {
+               const newValues = { ...props.filters };
+               newValues.year = e.target.value;
+               props.setFilters(newValues);
+            }}
          >
             <option value="all">All</option>
             {years.map((elem) => (
@@ -32,10 +36,15 @@ export const FilterTop = (props) => {
             fontWeight="bold"
             icon={"none"}
             _focusVisible={false}
-            defaultValue={props.ticker}
+            defaultValue={props.filters.ticker}
+            onChange={(e) => {
+               const newValues = { ...props.filters };
+               newValues.ticker = e.target.value;
+               props.setFilters(newValues);
+            }}
          >
             <option value="all">All</option>
-            {getTickers().map((elem) => (
+            {props.tickers.map((elem) => (
                <option key={elem} value={elem}>
                   {elem}
                </option>

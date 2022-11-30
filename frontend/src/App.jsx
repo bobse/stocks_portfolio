@@ -10,7 +10,7 @@ import {
    useLocation,
    Navigate,
 } from "react-router-dom";
-import auth from "./services/auth";
+// import auth from "./services/auth";
 import { Header } from "./components/Header/Header";
 import { Portfolio } from "./routes/Portfolio/Portfolio";
 import { Trades } from "./routes/Trades/Trades";
@@ -26,10 +26,11 @@ function App() {
             m="auto"
             bgColor="gray.800"
             px={4}
+            pb={4}
          >
             <BrowserRouter>
                <Header />
-               <Box w={"full"} h={"full"} overflow={"scroll"}>
+               <Box w={"full"} h={"full"} overflow={"hidden"}>
                   <Routes>
                      <Route path="/" element={<Portfolio />} />
                      <Route path="/trades" element={<Trades />} />
@@ -63,14 +64,14 @@ function App() {
    );
 }
 
-function RequireAuth({ children }) {
-   let location = useLocation();
-   auth.silentAuth();
-   if (auth.isAuthenticated()) {
-      return children;
-   } else {
-      return <Navigate to="/login" state={{ from: location }} replace />;
-   }
-}
+// function RequireAuth({ children }) {
+//    let location = useLocation();
+//    auth.silentAuth();
+//    if (auth.isAuthenticated()) {
+//       return children;
+//    } else {
+//       return <Navigate to="/login" state={{ from: location }} replace />;
+//    }
+// }
 
 export default App;

@@ -1,61 +1,131 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import { Box, HStack, Spacer, VStack, Text, Flex } from "@chakra-ui/react";
 import { ThreeDots } from "../../components/ThreeDots/ThreeDots";
 import { LabeledInfo } from "../../components/LabeledInfo/LabeledInfo";
 import { TopTotal } from "../../components/TopTotal/TopTotal";
 import { FilterTop } from "../../components/FilterTop/FilterTop";
 import { dateFormatted } from "../../utils/utils";
+import { APITRADES, APITOTALTRADES } from "../../constants";
+import { CustomButton } from "../../components/Button/Button";
 
 export const Trades = (props) => {
-   const testData = {
-      results: [
-         {
-            _id: "63863d1b76ebc0a6d106b5bc",
-            date: "2023-02-01T12:25:43.159Z",
-            userEmail: "roberto@robertoseba.com",
-            ticker: "PETR4",
-            price: 20,
-            amount: 100,
-            fees: 1.01,
-            valuesUpToDate: true,
-            currAvgPrice: 20.01,
-            currTotalAmount: 200,
-            __v: 0,
-            year: 2023,
-         },
-         {
-            _id: "63860037848864d63043a696",
-            date: "2023-01-01T12:25:43.159Z",
-            userEmail: "roberto@robertoseba.com",
-            ticker: "PETR4",
-            price: 19,
-            amount: -100,
-            fees: 1.01,
-            valuesUpToDate: true,
-            currAvgPrice: 20.01,
-            currTotalAmount: 100,
-            __v: 0,
-            year: 2023,
-         },
-      ],
-      pagination: {
-         totalCount: 2,
-         limit: 50,
-         page: 1,
-         hasNext: false,
-         hasPrevious: false,
+   const [tradesData, setTradesData] = useState([]);
+   const [totals, setTotals] = useState({
+      totalProfits: 0,
+   });
+   const [pagination, setPagination] = useState();
+   const [filters, setFilters] = useState({
+      ticker: "all",
+      year: "all",
+      category: "all",
+   });
+   const [tickersList, setTickersList] = useState([]);
+
+   const getTradesData = useCallback(
+      async (page = 1, limit = 25) => {
+         let url = APITRADES;
+         url += `/${filters.year}`;
+         if (filters.ticker !== "all") url += `/${filters.ticker}`;
+         if (filters.category.toUpperCase() !== "ALL") {
+            url += `?category=${filters.category}&limit=${limit}&page=${page}`;
+         } else {
+            url += `?limit=${limit}&page=${page}`;
+         }
+
+         const response = await axios.get(url);
+         return response.data;
       },
-   };
+      [filters]
+   );
+
+   const loadTradesData = useCallback(async () => {
+      const updateTotals = async () => {
+         let url = APITOTALTRADES;
+         url += `/${filters.year}`;
+         if (filters.ticker !== "all") url += `/${filters.ticker}`;
+         const response = await axios.get(url);
+         if (response.data.length > 0) {
+            const totalProfits = response.data.reduce((prev, elem) => {
+               return elem.totalProfits + prev;
+            }, 0);
+
+            setTotals({ totalProfits });
+         } else {
+            resetTotals();
+         }
+      };
+      try {
+         const data = await getTradesData();
+         if (data) {
+            setTradesData(data.results);
+            setPagination(data.pagination);
+         }
+         updateTotals();
+      } catch (err) {
+         console.log(err);
+      }
+   }, [filters, getTradesData]);
+
+   function resetTotals() {
+      const resetValues = { ...totals };
+      Object.keys(resetValues).forEach((k) => {
+         resetValues[k] = 0;
+      });
+      setTotals(resetValues);
+   }
+
+   useEffect(() => {
+      async function setTickers() {
+         try {
+            let url = APITOTALTRADES;
+            const response = await axios.get(url);
+            if (response.data.length > 0) {
+               const tickers = new Set(response.data.map((elem) => elem._id));
+               setTickersList([...tickers]);
+            }
+         } catch (err) {
+            console.log(err);
+         }
+      }
+      loadTradesData();
+      if (tickersList.length === 0) {
+         setTickers();
+      }
+   }, [loadTradesData, tickersList]);
+
    return (
       <>
          <VStack alignItems={"flex-start"} spacing={2} pb={6}>
-            <FilterTop year="2022" ticker="PETR4" />
-            <TopTotal value={2000.02} text="total P&L" type="value" />
+            <FilterTop
+               tickers={tickersList}
+               filters={filters}
+               setFilters={setFilters}
+            />
+            <TopTotal
+               value={totals.totalProfits}
+               text="total Profits"
+               type="value"
+            />
+            <CustomButton fontSize={"xs"} py={2}>
+               Add new trade
+            </CustomButton>
          </VStack>
-         <VStack p={0} w="full" overflow={"scroll"} maxH="85%" pb={6}>
-            {testData.results.map((data, idx) => (
+         <VStack p={0} w="full" h="60vh" overflow={"scroll"} pb={10}>
+            {tradesData.map((data, idx) => (
                <TradeCard key={idx} data={data} />
             ))}
+            {pagination && pagination.hasNext && (
+               <CustomButton
+                  onClick={async () => {
+                     const data = await getTradesData(pagination.page + 1);
+                     setPagination(data.pagination);
+                     setTradesData([...tradesData, ...data.results]);
+                  }}
+               >
+                  Load More
+               </CustomButton>
+            )}
          </VStack>
       </>
    );
@@ -68,10 +138,7 @@ const TradeCard = (props) => {
    } else {
       total -= props.data.fees;
    }
-   const pLValue =
-      total - props.data.currAvgPrice * Math.abs(props.data.amount);
-   const pLPerc =
-      (pLValue / (props.data.currAvgPrice * Math.abs(props.data.amount))) * 100;
+
    return (
       <Box
          borderRadius={6}
@@ -119,7 +186,7 @@ const TradeCard = (props) => {
                <Spacer />
                <LabeledInfo
                   value={`$ ${props.data.price.toFixed(2)}`}
-                  text="avg price"
+                  text="price"
                />
                <Spacer />
                <LabeledInfo
@@ -132,7 +199,7 @@ const TradeCard = (props) => {
             {props.data.amount < 0 && (
                <Flex
                   w="full"
-                  color={pLValue > 0 ? "green.400" : "red.400"}
+                  color={props.data.profits.value > 0 ? "green.400" : "red.400"}
                   fontSize={"xs"}
                   borderTop="1px"
                   pt={2}
@@ -141,8 +208,10 @@ const TradeCard = (props) => {
                >
                   <Text>P&L</Text>
                   <Spacer />
-                  <Text>$ {pLValue.toFixed(2)}</Text>
-                  <Text pl={4}>{pLPerc.toFixed(2)}%</Text>
+                  <Text>$ {props.data.profits.value.toFixed(2)}</Text>
+                  <Text pl={4}>
+                     {props.data.profits.percentage.toFixed(2)}%
+                  </Text>
                </Flex>
             )}
          </VStack>
