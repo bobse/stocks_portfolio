@@ -11,4 +11,11 @@ enum incomeType {
    dividends = "DIVIDENDS",
 }
 
-export { IIncome, incomeType };
+interface ITotalIncome {
+   _id: string;
+   totalInterests: number;
+   totalDividends: number;
+   totalCount: number;
+}
+
+export { IIncome, incomeType, ITotalIncome };

@@ -1,6 +1,7 @@
 import { Trade } from "./trades.schema";
 import mongoose from "mongoose";
 import { IPortfolio } from "../types/portfolio.interfaces";
+import { getTotalIncomes } from "./income.model";
 
 async function GetCurrPortfolio(userEmail: string): Promise<IPortfolio[]> {
    const agg: mongoose.PipelineStage[] = [
@@ -38,11 +39,19 @@ async function GetCurrPortfolio(userEmail: string): Promise<IPortfolio[]> {
       },
    ];
    let results = await Trade.aggregate(agg);
-   results = results.map((elm) => {
-      const newObj = { ticker: elm._id, ...elm };
-      delete newObj._id;
-      return newObj;
-   });
+   results = await Promise.all(
+      results.map(async (elm) => {
+         const newObj = { ticker: elm._id, ...elm };
+         const incomes = await getTotalIncomes(userEmail, newObj.ticker);
+         if (incomes[0])
+            Object.assign(newObj, {
+               totalIncome:
+                  incomes[0].totalInterests + incomes[0].totalDividends,
+            });
+         delete newObj._id;
+         return newObj;
+      })
+   );
    return results;
 }
 

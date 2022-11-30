@@ -10,6 +10,7 @@ interface IPortfolio {
       value: number;
       percentage: number;
    };
+   totalIncome?: number;
 }
 
 interface IStockPrice {

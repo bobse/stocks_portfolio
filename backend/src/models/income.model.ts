@@ -1,7 +1,7 @@
 import { Income } from "./income.schema";
 import { HydratedDocument } from "mongoose";
 import mongoose from "mongoose";
-import { IIncome } from "../types/income.interfaces";
+import { IIncome, ITotalIncome } from "../types/income.interfaces";
 import { getPaginatedResults } from "./pagination";
 import { IncomeUserDTO } from "../DTO/income.dto";
 
@@ -40,7 +40,7 @@ async function getTotalIncomes(
    userEmail: string,
    ticker: string | undefined = undefined,
    year: number | undefined = undefined
-) {
+): Promise<(ITotalIncome | null)[]> {
    const filter = { userEmail: userEmail };
    if (year) {
       Object.assign(filter, { year: year });
@@ -95,7 +95,7 @@ async function getTotalIncomes(
          },
       },
    ];
-   const results = await Income.aggregate(agg);
+   const results: (ITotalIncome | null)[] = await Income.aggregate(agg);
 
    return results;
 }
