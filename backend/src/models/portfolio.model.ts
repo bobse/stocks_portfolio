@@ -43,11 +43,16 @@ async function GetCurrPortfolio(userEmail: string): Promise<IPortfolio[]> {
       results.map(async (elm) => {
          const newObj = { ticker: elm._id, ...elm };
          const incomes = await getTotalIncomes(userEmail, newObj.ticker);
-         if (incomes[0])
+         if (incomes[0]) {
             Object.assign(newObj, {
                totalIncome:
                   incomes[0].totalInterests + incomes[0].totalDividends,
             });
+         } else {
+            Object.assign(newObj, {
+               totalIncome: 0,
+            });
+         }
          delete newObj._id;
          return newObj;
       })

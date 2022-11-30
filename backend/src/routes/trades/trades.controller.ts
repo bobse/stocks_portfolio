@@ -1,6 +1,11 @@
 import express from "express";
 import { validateOrReject, isMongoId } from "class-validator";
-import { insertTrade, getTrades, deleteTrade } from "../../models/trades.model";
+import {
+   insertTrade,
+   getTrades,
+   deleteTrade,
+   getTotalTrades,
+} from "../../models/trades.model";
 import { parseErrorsResponse } from "../../utils/utils";
 import { validatePagination, yearParamConvert } from "../../utils/validators";
 import { TradesDTO } from "../../DTO/trades.dto";
@@ -14,13 +19,25 @@ async function httpGetTrades(req: express.Request, res: express.Response) {
          req.query.page
       );
       const trades = await getTrades(req.user.email, ticker, year, limit, page);
-      if (trades.pagination.totalCount === 0) {
-         return res.status(404).json(trades);
-      }
       return res.status(200).json(trades);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
    } catch (err: any) {
       const response = parseErrorsResponse(err, "Could not get list of trades");
+      return res.status(500).json(response);
+   }
+}
+
+async function httpGetTotalTrades(req: express.Request, res: express.Response) {
+   try {
+      const { ticker } = req.params;
+      const year = yearParamConvert(req.params.year);
+      const totals = await getTotalTrades(req.user.email, ticker, year);
+      return res.status(200).json(totals);
+   } catch (err) {
+      const response = parseErrorsResponse(
+         err,
+         "Could not get totals. Please try again"
+      );
       return res.status(500).json(response);
    }
 }
@@ -60,4 +77,4 @@ async function httpDeleteTrade(req: express.Request, res: express.Response) {
    }
 }
 
-export { httpGetTrades, httpAddNewTrade, httpDeleteTrade };
+export { httpGetTrades, httpGetTotalTrades, httpAddNewTrade, httpDeleteTrade };

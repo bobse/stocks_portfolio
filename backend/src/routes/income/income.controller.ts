@@ -34,9 +34,6 @@ async function httpGetIncomes(req: express.Request, res: express.Response) {
          limit,
          page
       );
-      if (incomes.pagination.totalCount === 0) {
-         return res.status(404).json(incomes);
-      }
       return res.status(200).json(incomes);
    } catch (err) {
       const response = parseErrorsResponse(

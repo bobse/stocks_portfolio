@@ -5,10 +5,17 @@ interface ITradeSchema {
    price: number;
    amount: number;
    fees: number;
-   profitAndLosses: number;
+   profits: {
+      value: number;
+      percentage: number;
+   };
    currAvgPrice: number;
    currTotalAmount: number;
    valuesUpToDate: boolean;
 }
-
-export { ITradeSchema };
+interface ITotalTrade {
+   _id: string;
+   totalProfits: number;
+   totalCount: number;
+}
+export { ITradeSchema, ITotalTrade };

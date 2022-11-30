@@ -42,9 +42,15 @@ const tradesSchema = new mongoose.Schema<ITradeSchema>({
       min: 0,
       set: setNumDecimals,
    },
-   profitAndLosses: {
-      type: Number,
-      set: setNumDecimals,
+   profits: {
+      value: {
+         type: Number,
+         set: setNumDecimals,
+      },
+      percentage: {
+         type: Number,
+         set: setNumDecimals,
+      },
    },
    currAvgPrice: {
       type: Number,

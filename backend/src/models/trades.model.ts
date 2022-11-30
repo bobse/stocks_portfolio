@@ -1,6 +1,6 @@
 import { Trade } from "./trades.schema";
 import mongoose, { HydratedDocument } from "mongoose";
-import { ITradeSchema } from "../types/trades.interfaces";
+import { ITradeSchema, ITotalTrade } from "../types/trades.interfaces";
 import { getPaginatedResults } from "./pagination";
 import { TradesDTO } from "../DTO/trades.dto";
 
@@ -23,6 +23,53 @@ async function getTrades(
       Object.assign(filter, { year: year });
    }
    return await getPaginatedResults(Trade, filter, sort, limit, page);
+}
+
+async function getTotalTrades(
+   userEmail: string,
+   ticker: string | undefined = undefined,
+   year: number | undefined = undefined
+): Promise<(ITotalTrade | null)[]> {
+   const filter = { userEmail: userEmail };
+
+   if (year) {
+      Object.assign(filter, { year: year });
+   }
+   if (ticker) {
+      Object.assign(filter, { ticker: ticker.toUpperCase() });
+   }
+   const agg: mongoose.PipelineStage[] = [
+      {
+         $addFields: {
+            year: {
+               $year: "$date",
+            },
+         },
+      },
+      {
+         $match: filter,
+      },
+      {
+         $group: {
+            _id: "$ticker",
+            totalProfits: {
+               $sum: "$profits.value",
+            },
+            totalCount: {
+               $sum: {
+                  $cond: [{ $ifNull: ["$profits", false] }, 1, 0],
+               },
+            },
+         },
+      },
+      {
+         $sort: {
+            _id: 1,
+         },
+      },
+   ];
+   const results: ITotalTrade[] = await Trade.aggregate(agg);
+   return results;
 }
 
 async function insertTrade(data: TradesDTO) {
@@ -109,6 +156,11 @@ async function calcAndSaveNewTrade(
       oldAvgPrice = oldTrade.currAvgPrice;
       oldTotalAmount = oldTrade.currTotalAmount;
    }
+   newTrade.currAvgPrice = oldAvgPrice;
+   newTrade.currTotalAmount = oldTotalAmount;
+   if (newTrade.amount < 0) {
+      newTrade.profits = calcProfits(newTrade);
+   }
    const { currAvgPrice, currTotalAmount } = calcNewAvgPrice(
       newTrade.price,
       newTrade.amount,
@@ -118,9 +170,7 @@ async function calcAndSaveNewTrade(
    );
    newTrade.currAvgPrice = currAvgPrice;
    newTrade.currTotalAmount = currTotalAmount;
-   if (newTrade.amount < 0) {
-      newTrade.profitAndLosses = calcProfits(newTrade);
-   }
+
    return await newTrade.save();
 }
 
@@ -156,10 +206,12 @@ function checkTotalAmountValid(totalAmount: number) {
 
 // MAYBE WE SHOULD CALC THIS IN THE FRONTEND
 function calcProfits(newTrade: HydratedDocument<ITradeSchema>) {
-   return (
+   const value =
       (newTrade.price - newTrade.currAvgPrice) * Math.abs(newTrade.amount) -
-      newTrade.fees
-   );
+      newTrade.fees;
+   const percentage =
+      (value / (newTrade.currTotalAmount * newTrade.currAvgPrice)) * 100;
+   return { value, percentage };
 }
 
 async function getPreviousTrade(
@@ -227,4 +279,4 @@ async function setAllTradesAfterDateToRecalc(
    );
 }
 
-export { getTrades, insertTrade, deleteTrade };
+export { getTrades, getTotalTrades, insertTrade, deleteTrade };
