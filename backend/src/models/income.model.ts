@@ -21,7 +21,6 @@ async function getIncomes(
 ) {
    const filter = { userEmail: userEmail };
    const sort: Record<string, 1 | -1 | mongoose.Expression.Meta> = {
-      ticker: 1,
       date: -1,
    };
    if (ticker) {
