@@ -1,6 +1,32 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Box, HStack, Spacer, VStack, Text, Flex } from "@chakra-ui/react";
+import {
+   Box,
+   HStack,
+   Spacer,
+   VStack,
+   Text,
+   Flex,
+   Drawer,
+   DrawerBody,
+   DrawerFooter,
+   DrawerHeader,
+   DrawerOverlay,
+   DrawerContent,
+   DrawerCloseButton,
+   Input,
+   Select,
+   FormErrorMessage,
+   FormControl,
+   Alert,
+   AlertIcon,
+   Menu,
+   MenuButton,
+   MenuList,
+   MenuItem,
+   IconButton,
+} from "@chakra-ui/react";
+import { DeleteIcon } from "@chakra-ui/icons";
 import { ThreeDots } from "../../components/ThreeDots/ThreeDots";
 import { LabeledInfo } from "../../components/LabeledInfo/LabeledInfo";
 import { TopTotal } from "../../components/TopTotal/TopTotal";
@@ -10,6 +36,7 @@ import { APITRADES, APITOTALTRADES } from "../../constants";
 import { CustomButton } from "../../components/Button/Button";
 
 export const Trades = (props) => {
+   const [tradeDrawerStatus, setTradeDrawerStatus] = useState(false);
    const [tradesData, setTradesData] = useState([]);
    const [totals, setTotals] = useState({
       totalProfits: 0,
@@ -96,6 +123,11 @@ export const Trades = (props) => {
 
    return (
       <>
+         <AddTrade
+            setTradeDrawerStatus={setTradeDrawerStatus}
+            tradeDrawerStatus={tradeDrawerStatus}
+            loadTradesData={loadTradesData}
+         />
          <VStack alignItems={"flex-start"} spacing={2} pb={6}>
             <FilterTop
                tickers={tickersList}
@@ -107,13 +139,23 @@ export const Trades = (props) => {
                text="total Profits"
                type="value"
             />
-            <CustomButton fontSize={"xs"} py={2}>
+            <CustomButton
+               fontSize={"xs"}
+               py={2}
+               onClick={() => {
+                  setTradeDrawerStatus(!tradeDrawerStatus);
+               }}
+            >
                Add new trade
             </CustomButton>
          </VStack>
          <VStack p={0} w="full" h="60vh" overflow={"scroll"} pb={10}>
             {tradesData.map((data, idx) => (
-               <TradeCard key={idx} data={data} />
+               <TradeCard
+                  key={idx}
+                  data={data}
+                  loadTradesData={loadTradesData}
+               />
             ))}
             {pagination && pagination.hasNext && (
                <CustomButton
@@ -179,7 +221,12 @@ const TradeCard = (props) => {
                      text="total amount"
                   />
                </HStack>
-               <ThreeDots boxSize={5} pt={1} />
+               <MenuDelete
+                  boxSize={5}
+                  pt={1}
+                  id={props.data._id}
+                  loadTradesData={props.loadTradesData}
+               />
             </Flex>
             <Flex w="full" pt={6} flexGrow="1" alignItems={"flex-end"}>
                <LabeledInfo value={props.data.amount} text="total amount" />
@@ -216,5 +263,175 @@ const TradeCard = (props) => {
             )}
          </VStack>
       </Box>
+   );
+};
+
+const AddTrade = (props) => {
+   const [isLoading, setIsLoading] = useState(false);
+   const [errors, setErrors] = useState();
+   useEffect(() => {
+      resetErrors();
+   }, []);
+   const resetErrors = () => {
+      setErrors({
+         date: undefined,
+         ticker: undefined,
+         price: undefined,
+         fees: undefined,
+         amount: undefined,
+         general: undefined,
+      });
+   };
+   const saveIncome = async (e) => {
+      e.preventDefault();
+      resetErrors();
+      try {
+         setIsLoading(true);
+         var formData = new FormData(e.target);
+         await axios.post(APITRADES, Object.fromEntries(formData));
+         props.setTradeDrawerStatus(false);
+         props.loadTradesData();
+      } catch (err) {
+         const newErrors = { ...errors };
+         newErrors.general = "Could not save new trade.";
+         const validErrors = err.response?.data?.error;
+         if (validErrors) {
+            if (typeof validErrors === "object") {
+               Object.keys(validErrors).forEach((k) => {
+                  Object.assign(newErrors, { [k]: validErrors[k].join(", ") });
+               });
+            } else if (typeof validErrors === "string") {
+               newErrors.general = validErrors;
+            }
+         }
+         setErrors(newErrors);
+      } finally {
+         setIsLoading(false);
+      }
+   };
+
+   return (
+      <Drawer
+         isOpen={props.tradeDrawerStatus}
+         placement="right"
+         onClose={() => {
+            props.setTradeDrawerStatus(false);
+         }}
+      >
+         <DrawerOverlay />
+         <DrawerContent>
+            <DrawerCloseButton />
+            <DrawerHeader>Add new Income</DrawerHeader>
+
+            <DrawerBody>
+               <form onSubmit={saveIncome} name="formTrade" id="formTrade">
+                  <VStack>
+                     {errors?.general && (
+                        <Alert status="error">
+                           <AlertIcon />
+                           {errors.general}
+                        </Alert>
+                     )}
+                     <FormControl isInvalid={errors?.date}>
+                        <Input
+                           placeholder="Date"
+                           type="datetime-local"
+                           name="date"
+                           required={true}
+                        />
+                        <FormErrorMessage>{errors?.date}</FormErrorMessage>
+                     </FormControl>
+                     <FormControl isInvalid={errors?.ticker}>
+                        <Input
+                           placeholder="Ticker Ie: PETR4"
+                           type="text"
+                           length="6"
+                           name="ticker"
+                           required={true}
+                        />
+                        <FormErrorMessage>{errors?.ticker}</FormErrorMessage>
+                     </FormControl>
+                     <FormControl isInvalid={errors?.price}>
+                        <Input
+                           placeholder="Price R$"
+                           type="number"
+                           step=".01"
+                           name="price"
+                           required={true}
+                        />
+                        <FormErrorMessage>{errors?.price}</FormErrorMessage>
+                     </FormControl>
+                     <FormControl isInvalid={errors?.fees}>
+                        <Input
+                           placeholder="Fees R$"
+                           type="number"
+                           name="fees"
+                           step=".01"
+                           required={true}
+                        />
+                        <FormErrorMessage>{errors?.fees}</FormErrorMessage>
+                     </FormControl>
+                     <FormControl isInvalid={errors?.amount}>
+                        <Input
+                           placeholder="Amount"
+                           type="number"
+                           name="amount"
+                           required={true}
+                        />
+                        <FormErrorMessage>{errors?.amount}</FormErrorMessage>
+                     </FormControl>
+                  </VStack>
+               </form>
+            </DrawerBody>
+
+            <DrawerFooter>
+               <CustomButton
+                  type="submit"
+                  form="formTrade"
+                  isLoading={isLoading}
+                  mr={3}
+               >
+                  Save
+               </CustomButton>
+               <CustomButton
+                  onClick={() => {
+                     props.setTradeDrawerStatus(false);
+                  }}
+               >
+                  Cancel
+               </CustomButton>
+            </DrawerFooter>
+         </DrawerContent>
+      </Drawer>
+   );
+};
+
+const MenuDelete = (props) => {
+   const deleteIncome = async (id) => {
+      const data = { data: { _id: id } };
+      await axios.delete(APITRADES, data);
+      props.loadTradesData();
+   };
+   return (
+      <Menu>
+         <MenuButton
+            as={IconButton}
+            aria-label="Options"
+            icon={<ThreeDots />}
+            border={"none"}
+            color="gray.100"
+            variant="outline"
+         />
+         <MenuList>
+            <MenuItem
+               onClick={() => {
+                  deleteIncome(props.id);
+               }}
+               icon={<DeleteIcon />}
+            >
+               Delete
+            </MenuItem>
+         </MenuList>
+      </Menu>
    );
 };
