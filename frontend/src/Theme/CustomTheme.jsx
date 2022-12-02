@@ -8,6 +8,7 @@ import { Input } from "./Input";
 
 export const customTheme = extendTheme(
    {
+      config: { initialColorMode: "dark", useSystemColorMode: false },
       colors: {
          brand: baseTheme.colors.gray,
 

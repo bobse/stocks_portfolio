@@ -13,6 +13,7 @@ import { validatePagination, yearParamConvert } from "../../utils/validators";
 
 async function httpGetIncomes(req: express.Request, res: express.Response) {
    try {
+      const user = req.user as string;
       const ticker = req.params.ticker;
       const year = yearParamConvert(req.params.year);
       if (req.query.category instanceof Array) {
@@ -27,7 +28,7 @@ async function httpGetIncomes(req: express.Request, res: express.Response) {
          req.query.page
       );
       const incomes = await getIncomes(
-         req.user.email,
+         user,
          ticker,
          incomeCategory,
          year,
@@ -49,9 +50,10 @@ async function httpGetTotalIncomes(
    res: express.Response
 ) {
    try {
+      const user = req.user as string;
       const { ticker } = req.params;
       const year = yearParamConvert(req.params.year);
-      const totals = await getTotalIncomes(req.user.email, ticker, year);
+      const totals = await getTotalIncomes(user, ticker, year);
       return res.status(200).json(totals);
    } catch (err) {
       const response = parseErrorsResponse(
@@ -65,7 +67,7 @@ async function httpGetTotalIncomes(
 async function httpInsertIncome(req: express.Request, res: express.Response) {
    try {
       const data = new IncomeUserDTO(req.body);
-      Object.assign(data, { userEmail: req.user.email });
+      Object.assign(data, { userEmail: req.user });
       await validateOrReject(data);
       const income = await insertIncome(data);
       return res.status(201).json(income);
@@ -80,8 +82,9 @@ async function httpInsertIncome(req: express.Request, res: express.Response) {
 
 async function httpDeleteIncome(req: express.Request, res: express.Response) {
    try {
+      const user = req.user as string;
       if (isMongoId(req.body._id)) {
-         const response = await deleteIncome(req.user.email, req.body._id);
+         const response = await deleteIncome(user, req.body._id);
          if (response) {
             return res.status(204).json();
          } else {
@@ -102,7 +105,7 @@ async function httpDeleteIncome(req: express.Request, res: express.Response) {
 async function httpUpdateIncome(req: express.Request, res: express.Response) {
    try {
       const data = new IncomeUserDTO(req.body);
-      Object.assign(data, { userEmail: req.user.email });
+      Object.assign(data, { userEmail: req.user });
       await validateOrReject(data);
       const income = await updateIncome(data);
       if (income) {

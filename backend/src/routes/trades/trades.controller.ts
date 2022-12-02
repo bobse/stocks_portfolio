@@ -12,13 +12,14 @@ import { TradesDTO } from "../../DTO/trades.dto";
 
 async function httpGetTrades(req: express.Request, res: express.Response) {
    try {
+      const user = req.user as string;
       const ticker = req.params.ticker;
       const year = yearParamConvert(req.params.year);
       const { limit, page } = validatePagination(
          req.query.limit,
          req.query.page
       );
-      const trades = await getTrades(req.user.email, ticker, year, limit, page);
+      const trades = await getTrades(user, ticker, year, limit, page);
       return res.status(200).json(trades);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
    } catch (err: any) {
@@ -29,9 +30,10 @@ async function httpGetTrades(req: express.Request, res: express.Response) {
 
 async function httpGetTotalTrades(req: express.Request, res: express.Response) {
    try {
+      const user = req.user as string;
       const { ticker } = req.params;
       const year = yearParamConvert(req.params.year);
-      const totals = await getTotalTrades(req.user.email, ticker, year);
+      const totals = await getTotalTrades(user, ticker, year);
       return res.status(200).json(totals);
    } catch (err) {
       const response = parseErrorsResponse(
@@ -45,7 +47,7 @@ async function httpGetTotalTrades(req: express.Request, res: express.Response) {
 async function httpAddNewTrade(req: express.Request, res: express.Response) {
    try {
       const data = new TradesDTO(req.body);
-      Object.assign(data, { userEmail: req.user.email });
+      Object.assign(data, { userEmail: req.user as string });
       await validateOrReject(data);
       const response = await insertTrade(data);
       if (response) {
@@ -62,7 +64,8 @@ async function httpAddNewTrade(req: express.Request, res: express.Response) {
 async function httpDeleteTrade(req: express.Request, res: express.Response) {
    try {
       if (isMongoId(req.body._id)) {
-         const response = await deleteTrade(req.user.email, req.body._id);
+         const user = req.user as string;
+         const response = await deleteTrade(user, req.body._id);
          if (response) {
             return res.status(204).json();
          } else {

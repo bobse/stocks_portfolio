@@ -2,6 +2,7 @@ import React from "react";
 import { HStack } from "@chakra-ui/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HeaderButton } from "./HeaderButton";
+import auth from "../../services/auth";
 
 export const Header = (props) => {
    const navigate = useNavigate();
@@ -38,6 +39,13 @@ export const Header = (props) => {
             }}
          >
             Trades
+         </HeaderButton>
+         <HeaderButton
+            onClick={() => {
+               auth.logout();
+            }}
+         >
+            Logout
          </HeaderButton>
          {/* <HeaderButton isDisabled={true}>Reports</HeaderButton> */}
       </HStack>

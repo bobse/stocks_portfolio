@@ -1,77 +1,80 @@
-import { React } from "react";
+import React from "react";
 import "@fontsource/lato/400.css";
 import "@fontsource/lato/700.css";
 import { ChakraProvider, VStack, Box } from "@chakra-ui/react";
 import { customTheme } from "./Theme/CustomTheme";
-import {
-   Routes,
-   Route,
-   BrowserRouter,
-   useLocation,
-   Navigate,
-} from "react-router-dom";
-// import auth from "./services/auth";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import auth from "./services/auth";
 import { Header } from "./components/Header/Header";
 import { Portfolio } from "./routes/Portfolio/Portfolio";
 import { Trades } from "./routes/Trades/Trades";
 import { Incomes } from "./routes/Incomes/Incomes";
+import { Login } from "./routes/Login/Login";
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
+axios.interceptors.response.use(
+   (response) => response,
+   (error) => {
+      if (error.response.status === 401) {
+         window.location.href = "/login";
+      }
+   }
+);
 
 function App() {
    return (
       <ChakraProvider theme={customTheme}>
-         <VStack
-            h={"99vh"}
-            w={"100vw"}
-            maxW={"400px"}
-            m="auto"
-            bgColor="gray.800"
-            px={4}
-            pb={4}
-         >
-            <BrowserRouter>
-               <Header />
-               <Box w={"full"} h={"full"} overflow={"hidden"}>
-                  <Routes>
-                     <Route path="/" element={<Portfolio />} />
-                     <Route path="/trades" element={<Trades />} />
-                     <Route path="/incomes" element={<Incomes />} />
-                     {/* <Route
-                     path="/"
-                     element={
-                        <RequireAuth>
-                           <DirectorsPage />
-                        </RequireAuth>
-                     }
-                  />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/signup" element={<SignUpPage />} />
-                  <Route
-                     path="/emailconfirmation"
-                     element={<ConfirmationEmailPage />}
-                  />
-                  <Route
-                     path="/forgotpassword"
-                     element={<ForgotPasswordPage />}
-                  />
-                  <Route path="/newpassword" element={<NewPasswordPage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="/*" element={<NotFoundPage />} /> */}
-                  </Routes>
-               </Box>
-            </BrowserRouter>
-         </VStack>
+         <BrowserRouter>
+            <Routes>
+               <Route
+                  path="/"
+                  element={
+                     <ContainerWithHeader>
+                        <Portfolio />
+                     </ContainerWithHeader>
+                  }
+               />
+               <Route
+                  path="/trades"
+                  element={
+                     <ContainerWithHeader>
+                        <Trades />
+                     </ContainerWithHeader>
+                  }
+               />
+               <Route
+                  path="/incomes"
+                  element={
+                     <ContainerWithHeader>
+                        <Incomes />
+                     </ContainerWithHeader>
+                  }
+               />
+               <Route path="/login" element={<Login />} />
+            </Routes>
+         </BrowserRouter>
       </ChakraProvider>
    );
 }
 
-// function RequireAuth({ children }) {
-//    let location = useLocation();
-//    auth.silentAuth();
-//    if (auth.isAuthenticated()) {
-//       return children;
-//    } else {
-//       return <Navigate to="/login" state={{ from: location }} replace />;
-//    }
-// }
+const ContainerWithHeader = (props) => {
+   return (
+      <VStack
+         h={"99vh"}
+         w={"100vw"}
+         maxW={"400px"}
+         m="auto"
+         bgColor="gray.800"
+         px={4}
+         pb={4}
+      >
+         <Header />
+         <Box w={"full"} h={"full"} overflow={"hidden"}>
+            {props.children}
+         </Box>
+      </VStack>
+   );
+};
 
 export default App;
