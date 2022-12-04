@@ -5,6 +5,7 @@ import {
    httpGetTotalIncomes,
    httpDeleteIncome,
    httpUpdateIncome,
+   httpUploadCSV,
 } from "./income.controller";
 
 const incomeRouter = express.Router();
@@ -15,4 +16,6 @@ incomeRouter.get("/totals/:year?/:ticker?", httpGetTotalIncomes);
 incomeRouter.get("/:year?/:ticker?", httpGetIncomes);
 incomeRouter.delete("/", httpDeleteIncome);
 incomeRouter.put("/", httpUpdateIncome);
+incomeRouter.post("/csvfile", httpUploadCSV);
+
 export { incomeRouter };

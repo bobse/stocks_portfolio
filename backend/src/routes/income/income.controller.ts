@@ -1,5 +1,6 @@
 import express from "express";
 import { isMongoId, validateOrReject } from "class-validator";
+import multer from "multer";
 import {
    insertIncome,
    getIncomes,
@@ -8,6 +9,7 @@ import {
    updateIncome,
 } from "../../models/income.model";
 import { parseErrorsResponse } from "../../utils/utils";
+import { processIncomeCSV } from "../../utils/process_csv";
 import { IncomeUserDTO } from "../../DTO/income.dto";
 import { validatePagination, yearParamConvert } from "../../utils/validators";
 
@@ -122,10 +124,50 @@ async function httpUpdateIncome(req: express.Request, res: express.Response) {
    }
 }
 
+async function httpUploadCSV(req: express.Request, res: express.Response) {
+   try {
+      const user = req?.user as string;
+      const storage = multer.memoryStorage();
+      const upload = multer({
+         storage: storage,
+         limits: { fileSize: 5000000 },
+         fileFilter: (req, file, cb) => {
+            if (file.mimetype != "text/csv") {
+               cb(new Error("Invalid file format. Files must be .csv"));
+            }
+            cb(null, true);
+         },
+      }).single("csv_file");
+      upload(req, res, async function (err) {
+         if (err) {
+            return res.status(500).json({ error: err.message });
+         }
+         if (req.file?.buffer.toString() === undefined) {
+            throw new Error("Invalid file.");
+         }
+         const { validData, invalidLinesinFile } = await processIncomeCSV(
+            req.file.buffer.toString(),
+            user
+         );
+         const allIncome = await Promise.all(
+            validData.map(async (elem) => insertIncome(elem))
+         );
+         return res.status(200).json({
+            savedCount: allIncome.length,
+            invalidLinesinFile: invalidLinesinFile,
+         });
+      });
+   } catch (err) {
+      console.log(err);
+      return res.status(500).json({ error: "Could not process the file." });
+   }
+}
+
 export {
    httpGetIncomes,
    httpInsertIncome,
    httpGetTotalIncomes,
    httpDeleteIncome,
    httpUpdateIncome,
+   httpUploadCSV,
 };
