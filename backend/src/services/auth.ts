@@ -59,6 +59,7 @@ const setupGCPAuth = (app: Application) => {
          // 3 days
          maxAge: 3 * 24 * 60 * 60 * 1000,
          keys: [COOKIE_KEY],
+         sameSite: "strict",
       })
    );
    // register regenerate & save after the cookieSession middleware initialization
