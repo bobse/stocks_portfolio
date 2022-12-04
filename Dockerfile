@@ -10,7 +10,7 @@ RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
 COPY backend/package*.json $APP_HOME
-RUN npm install --only=production
+RUN npm install --omit=dev
 
 # copy project
 COPY backend/. $APP_HOME
@@ -24,4 +24,4 @@ RUN chown -R app:app $APP_HOME
 # change to the app user
 USER app
 
-CMD ["node", "./src/server.mjs"]
+CMD ["node", "./dist/server.js"]
