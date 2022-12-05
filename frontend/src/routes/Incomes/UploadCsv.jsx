@@ -33,14 +33,28 @@ const UploadCsv = (props) => {
       resetErrors();
       try {
          setIsLoading(true);
-         var formData = new FormData(e.target);
-         await axios.post(APIINCOMESUPLOAD, Object.fromEntries(formData), {
+         var formData = Object.fromEntries(new FormData(e.target));
+         e.target.reset();
+         const res = await axios.post(APIINCOMESUPLOAD, formData, {
             headers: {
                "Content-Type": "multipart/form-data",
             },
          });
+         // TODO: CONFIRM INSERTION TO THE USER AND ALERT FOR POSSIBLE "invalidLinesinFile" count.
+
+         if (
+            res.data?.invalidLinesinFile &&
+            res.data.invalidLinesinFile.length > 0
+         ) {
+            setErrors({
+               general: `The following line numbers in file are invalid and were not saved: ${res.data.invalidLinesinFile.join(
+                  ", "
+               )}`,
+            });
+         } else {
+            props.setDrawerStatus(false);
+         }
          props.refresh();
-         props.setDrawerStatus(false);
       } catch (err) {
          const newErrors = { ...errors };
          newErrors.general =
