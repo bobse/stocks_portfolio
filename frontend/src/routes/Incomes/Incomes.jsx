@@ -7,19 +7,6 @@ import {
    Text,
    Flex,
    Button,
-   Drawer,
-   DrawerBody,
-   DrawerFooter,
-   DrawerHeader,
-   DrawerOverlay,
-   DrawerContent,
-   DrawerCloseButton,
-   Input,
-   Select,
-   FormErrorMessage,
-   FormControl,
-   Alert,
-   AlertIcon,
    Menu,
    MenuButton,
    MenuList,
@@ -34,9 +21,13 @@ import { dateFormatted } from "../../utils/utils";
 import { APIINCOMES, APITOTALINCOMES } from "../../constants";
 import { useCallback } from "react";
 import { CustomButton } from "../../components/Button/Button";
+import { AddIncome } from "./AddIncome";
+import { UploadCsv } from "./UploadCsv";
 
 export const Incomes = (props) => {
    const [incomeDrawerStatus, setIncomeDrawerStatus] = useState(false);
+   const [uploadDrawerStatus, setUploadDrawerStatus] = useState(false);
+
    const [incomesData, setIncomesData] = useState([]);
    const [totals, setTotals] = useState({
       totalIncome: 0,
@@ -138,6 +129,11 @@ export const Incomes = (props) => {
             incomeDrawerStatus={incomeDrawerStatus}
             loadIncomeData={loadIncomeData}
          />
+         <UploadCsv
+            setDrawerStatus={setUploadDrawerStatus}
+            drawerStatus={uploadDrawerStatus}
+            refresh={loadIncomeData}
+         />
          <VStack alignItems={"flex-start"} spacing={2} pb={2} w="full">
             <FilterTop
                tickers={tickersList}
@@ -169,6 +165,15 @@ export const Incomes = (props) => {
                }}
             >
                Add new income
+            </CustomButton>
+            <CustomButton
+               fontSize={"xs"}
+               py={2}
+               onClick={() => {
+                  setUploadDrawerStatus(!uploadDrawerStatus);
+               }}
+            >
+               Import csv file
             </CustomButton>
             <HStack w="full" spacing={2} pt={6}>
                <FilterButton
@@ -219,135 +224,6 @@ export const Incomes = (props) => {
             )}
          </VStack>
       </>
-   );
-};
-
-const AddIncome = (props) => {
-   const [isLoading, setIsLoading] = useState(false);
-   const [errors, setErrors] = useState();
-   useEffect(() => {
-      resetErrors();
-   }, []);
-   const resetErrors = () => {
-      setErrors({
-         date: undefined,
-         ticker: undefined,
-         value: undefined,
-         category: undefined,
-         general: undefined,
-      });
-   };
-   const saveIncome = async (e) => {
-      e.preventDefault();
-      resetErrors();
-      try {
-         setIsLoading(true);
-         var formData = new FormData(e.target);
-         await axios.post(APIINCOMES, Object.fromEntries(formData));
-         props.setIncomeDrawerStatus(false);
-         props.loadIncomeData();
-      } catch (err) {
-         const newErrors = { ...errors };
-         newErrors.general = "Could not save new income.";
-         const validErrors = err.response?.data?.error;
-         if (validErrors) {
-            if (typeof validErrors === "object") {
-               Object.keys(validErrors).forEach((k) => {
-                  Object.assign(newErrors, { [k]: validErrors[k].join(", ") });
-               });
-            }
-         }
-         setErrors(newErrors);
-      } finally {
-         setIsLoading(false);
-      }
-   };
-
-   return (
-      <Drawer
-         isOpen={props.incomeDrawerStatus}
-         placement="right"
-         onClose={() => {
-            props.setIncomeDrawerStatus(false);
-         }}
-      >
-         <DrawerOverlay />
-         <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerHeader>Add new Income</DrawerHeader>
-
-            <DrawerBody>
-               <form onSubmit={saveIncome} name="formIncome" id="formIncome">
-                  <VStack>
-                     {errors?.general && (
-                        <Alert status="error">
-                           <AlertIcon />
-                           {errors.general}
-                        </Alert>
-                     )}
-                     <FormControl isInvalid={errors?.date}>
-                        <Input
-                           placeholder="Date"
-                           type="datetime-local"
-                           name="date"
-                           required={true}
-                        />
-                        <FormErrorMessage>{errors?.date}</FormErrorMessage>
-                     </FormControl>
-                     <FormControl isInvalid={errors?.ticker}>
-                        <Input
-                           placeholder="Ticker Ie: PETR4"
-                           type="text"
-                           length="6"
-                           name="ticker"
-                           required={true}
-                        />
-                        <FormErrorMessage>{errors?.ticker}</FormErrorMessage>
-                     </FormControl>
-                     <FormControl isInvalid={errors?.value}>
-                        <Input
-                           placeholder="Amount R$"
-                           type="number"
-                           name="value"
-                           step=".01"
-                           required={true}
-                        />
-                        <FormErrorMessage>{errors?.value}</FormErrorMessage>
-                     </FormControl>
-                     <FormControl isInvalid={errors?.category}>
-                        <Select
-                           placeholder="Select category"
-                           name="category"
-                           required={true}
-                        >
-                           <option value="INTERESTS">Interests</option>
-                           <option value="DIVIDENDS">Dividends</option>
-                        </Select>
-                        <FormErrorMessage>{errors?.category}</FormErrorMessage>
-                     </FormControl>
-                  </VStack>
-               </form>
-            </DrawerBody>
-
-            <DrawerFooter>
-               <CustomButton
-                  type="submit"
-                  form="formIncome"
-                  isLoading={isLoading}
-                  mr={3}
-               >
-                  Save
-               </CustomButton>
-               <CustomButton
-                  onClick={() => {
-                     props.setIncomeDrawerStatus(false);
-                  }}
-               >
-                  Cancel
-               </CustomButton>
-            </DrawerFooter>
-         </DrawerContent>
-      </Drawer>
    );
 };
 
