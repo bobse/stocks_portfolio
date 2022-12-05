@@ -43,7 +43,7 @@ async function httpGetIncomes(req: express.Request, res: express.Response) {
          err,
          "Could not get list of incomes"
       );
-      return res.status(500).json(response);
+      return res.status(400).json(response);
    }
 }
 
@@ -62,7 +62,7 @@ async function httpGetTotalIncomes(
          err,
          "Could not get totals. Please try again"
       );
-      return res.status(500).json(response);
+      return res.status(400).json(response);
    }
 }
 
@@ -78,7 +78,7 @@ async function httpInsertIncome(req: express.Request, res: express.Response) {
          err,
          "Could not save this new income"
       );
-      return res.status(500).json(response);
+      return res.status(400).json(response);
    }
 }
 
@@ -100,7 +100,7 @@ async function httpDeleteIncome(req: express.Request, res: express.Response) {
          err,
          "Could not delete this new income"
       );
-      return res.status(500).json(response);
+      return res.status(400).json(response);
    }
 }
 
@@ -120,7 +120,7 @@ async function httpUpdateIncome(req: express.Request, res: express.Response) {
          err,
          "Could not delete this new income"
       );
-      return res.status(500).json(response);
+      return res.status(400).json(response);
    }
 }
 
@@ -138,13 +138,15 @@ async function httpUploadCSV(req: express.Request, res: express.Response) {
             cb(null, true);
          },
       }).single("csv_file");
+
       upload(req, res, async function (err) {
-         if (err) {
-            return res.status(500).json({ error: err.message });
-         }
          if (req.file?.buffer.toString() === undefined) {
-            throw new Error("Invalid file.");
+            return res.status(400).json({ error: "Invalid file" });
          }
+         if (err) {
+            return res.status(400).json({ error: err.message });
+         }
+
          const { validData, invalidLinesinFile } = await processIncomeCSV(
             req.file.buffer.toString(),
             user
@@ -159,7 +161,7 @@ async function httpUploadCSV(req: express.Request, res: express.Response) {
       });
    } catch (err) {
       console.log(err);
-      return res.status(500).json({ error: "Could not process the file." });
+      return res.status(400).json({ error: "Could not process the file." });
    }
 }
 
