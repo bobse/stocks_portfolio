@@ -9,11 +9,11 @@
       "watch-compile": "swc src -w --out-dir dist",
       "watch-dev": "nodemon --watch \"dist/**/*\" -e js ./dist/server.js",
       "build": "swc src -d dist",
-      "start-production": "NODE_ENV=production node dist/server.js",
       "clean": "rm -rf dist",
       "lint": "eslint --ext .ts src",
       "lint:fix": "eslint --ext .ts src --fix",
-      "prettier:fix": "npx prettier --write \"src/**/*.ts\""
+      "prettier:fix": "npx prettier --write \"src/**/*.ts\"",
+      "start": "NODE_ENV=production node dist/server.js"
    },
    "author": "Roberto Seba",
    "license": "ISC",
