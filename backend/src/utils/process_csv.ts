@@ -9,11 +9,12 @@ async function processUploadRequest(
    insertMethod: any
 ) {
    const user = req.user as string;
+
    const storage = multer.memoryStorage();
 
    const upload = multer({
       storage: storage,
-      limits: { fileSize: 2000000 },
+      limits: { fileSize: 1000000 },
       fileFilter: (req, file, cb) => {
          if (file.mimetype != "text/csv") {
             cb(new Error("Invalid file format. Files must be .csv"));
@@ -29,6 +30,9 @@ async function processUploadRequest(
             req.file?.buffer.toString() === undefined ||
             err
          ) {
+            if (err) {
+               throw new Error(err.message);
+            }
             throw new Error("Invalid file. Please review the guidelines");
          }
          const { validData, invalidLinesinFile } = await processCSV(
