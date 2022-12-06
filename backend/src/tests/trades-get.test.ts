@@ -1,3 +1,4 @@
+jest.mock("../services/auth.ts");
 import supertest from "supertest";
 import { app, API_START_URL } from "../app";
 import { setupTestDb } from "./db-handler";
@@ -12,17 +13,17 @@ describe("Trades Api", () => {
       ticker: "VALE5",
       price: 20,
       //TODO: change userEmail once implent AUTH
-      userEmail: "roberto@robertoseba.com",
+      userEmail: "testuser@test.com",
       amount: 200,
       fees: 0.01,
    };
 
    describe("Get Trades", () => {
-      test("Test httpGetAllTrades EMPTY 404", async () => {
+      test("Test httpGetAllTrades EMPTY 200", async () => {
          const res = await supertest(app)
             .get(`${API_START_URL}/trades`)
             .expect("Content-Type", /json/)
-            .expect(404);
+            .expect(200);
          expect(res.body.pagination.totalCount).toBe(0);
       });
 

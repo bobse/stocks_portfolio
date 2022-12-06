@@ -1,3 +1,5 @@
+jest.mock("../services/auth.ts");
+
 import supertest from "supertest";
 import { app, API_START_URL } from "../app";
 import { setupTestDb } from "./db-handler";
@@ -13,7 +15,7 @@ describe("TRADES API - INSERT", () => {
          ticker: "VALE5",
          price: 20,
          amount: 200,
-         userEmail: "test@test.com",
+         userEmail: "testuser@test.com",
          fees: 0.01,
       };
 
@@ -138,7 +140,7 @@ describe("TRADES API - INSERT", () => {
             ticker: "VALE5",
             price: 20,
             amount: 200,
-            userEmail: "test@test.com",
+            userEmail: "testuser@test.com",
             fees: 0.01,
          };
          const res = await supertest(app)
@@ -158,7 +160,7 @@ describe("TRADES API - INSERT", () => {
             ticker: "VALE5",
             price: 20,
             amount: 200,
-            userEmail: "test@test.com",
+            userEmail: "testuser@test.com",
             fees: 0.01,
          };
          const expectCode = [201, 500];
@@ -183,7 +185,7 @@ describe("TRADES API - INSERT", () => {
             ticker: "xyz",
             price: 20,
             amount: 200,
-            userEmail: "test@test.com",
+            userEmail: "testuser@test.com",
             fees: 0.01,
          };
          const res = await supertest(app)
@@ -206,7 +208,7 @@ describe("TRADES API - INSERT", () => {
             ticker: "Petr4",
             price: 20,
             amount: -200,
-            userEmail: "test@test.com",
+            userEmail: "testuser@test.com",
             fees: 0.01,
          };
          const res = await supertest(app)
