@@ -71,6 +71,7 @@ async function processCSV(
    userEmail: string,
    DTOValidator: any
 ): Promise<{ validData: typeof DTOValidator[]; invalidLinesinFile: number[] }> {
+   csvData = csvData.replace("\r", "");
    const { data, headers } = splitCSVString(csvData);
    const validData: typeof DTOValidator[] = [];
    const invalidLinesinFile: number[] = [];
@@ -82,6 +83,7 @@ async function processCSV(
          line.forEach((value, idx) => {
             Object.assign(obj, { [headers[idx]]: value });
          });
+         // console.log(obj);
 
          const dto = new DTOValidator(obj);
          try {
