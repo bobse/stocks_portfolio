@@ -338,7 +338,7 @@ const AddTrade = (props) => {
          <DrawerOverlay />
          <DrawerContent>
             <DrawerCloseButton />
-            <DrawerHeader>Add new Income</DrawerHeader>
+            <DrawerHeader>Add new Trade</DrawerHeader>
 
             <DrawerBody>
                <form onSubmit={saveIncome} name="formTrade" id="formTrade">
