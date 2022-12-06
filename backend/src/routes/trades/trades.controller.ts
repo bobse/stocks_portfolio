@@ -9,6 +9,7 @@ import {
 import { parseErrorsResponse } from "../../utils/utils";
 import { validatePagination, yearParamConvert } from "../../utils/validators";
 import { TradesDTO } from "../../DTO/trades.dto";
+import { processUploadRequest } from "../../utils/process_csv";
 
 async function httpGetTrades(req: express.Request, res: express.Response) {
    try {
@@ -80,4 +81,14 @@ async function httpDeleteTrade(req: express.Request, res: express.Response) {
    }
 }
 
-export { httpGetTrades, httpGetTotalTrades, httpAddNewTrade, httpDeleteTrade };
+async function httpUploadCSV(req: express.Request, res: express.Response) {
+   processUploadRequest(req, res, TradesDTO, insertTrade);
+}
+
+export {
+   httpGetTrades,
+   httpGetTotalTrades,
+   httpAddNewTrade,
+   httpDeleteTrade,
+   httpUploadCSV,
+};
