@@ -18,11 +18,11 @@ import { ThreeDots } from "../../components/ThreeDots/ThreeDots";
 import { TopTotal } from "../../components/TopTotal/TopTotal";
 import { FilterTop } from "../../components/FilterTop/FilterTop";
 import { dateFormatted } from "../../utils/utils";
-import { APIINCOMES, APITOTALINCOMES } from "../../constants";
+import { APIINCOMES, APITOTALINCOMES, APIINCOMESUPLOAD } from "../../constants";
 import { useCallback } from "react";
 import { CustomButton } from "../../components/Button/Button";
 import { AddIncome } from "./AddIncome";
-import { UploadCsv } from "./UploadCsv";
+import { UploadCsv } from "../../components/UploadCsv/UploadCsv";
 
 export const Incomes = (props) => {
    const [incomeDrawerStatus, setIncomeDrawerStatus] = useState(false);
@@ -132,7 +132,8 @@ export const Incomes = (props) => {
          <UploadCsv
             setDrawerStatus={setUploadDrawerStatus}
             drawerStatus={uploadDrawerStatus}
-            refresh={loadIncomeData}
+            refreshCb={loadIncomeData}
+            apiUrl={APIINCOMESUPLOAD}
          />
          <VStack alignItems={"flex-start"} spacing={2} pb={2} w="full">
             <FilterTop

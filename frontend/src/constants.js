@@ -15,3 +15,4 @@ export const APITOTALINCOMES = `${APIHOST}/incomes/totals`;
 export const APILOGIN = `${HOST}/auth/google`;
 export const APILOGOUT = `${HOST}/auth/logout`;
 export const APIINCOMESUPLOAD = `${APIHOST}/incomes/csvfile`;
+export const APITRADESUPLOAD = `${APIHOST}/trades/csvfile`;

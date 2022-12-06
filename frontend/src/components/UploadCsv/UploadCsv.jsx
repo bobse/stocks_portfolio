@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { APIINCOMESUPLOAD } from "../../constants";
 import axios from "axios";
-import { CustomButton } from "../../components/Button/Button";
+import { CustomButton } from "../Button/Button";
 import {
    VStack,
    Drawer,
@@ -16,7 +15,7 @@ import {
    AlertIcon,
 } from "@chakra-ui/react";
 
-const UploadCsv = (props) => {
+const UploadCsv = ({ setDrawerStatus, drawerStatus, refreshCb, apiUrl }) => {
    const [isLoading, setIsLoading] = useState(false);
    const [errors, setErrors] = useState();
    useEffect(() => {
@@ -35,13 +34,11 @@ const UploadCsv = (props) => {
          setIsLoading(true);
          var formData = Object.fromEntries(new FormData(e.target));
          e.target.reset();
-         const res = await axios.post(APIINCOMESUPLOAD, formData, {
+         const res = await axios.post(apiUrl, formData, {
             headers: {
                "Content-Type": "multipart/form-data",
             },
          });
-         // TODO: CONFIRM INSERTION TO THE USER AND ALERT FOR POSSIBLE "invalidLinesinFile" count.
-
          if (
             res.data?.invalidLinesinFile &&
             res.data.invalidLinesinFile.length > 0
@@ -52,9 +49,9 @@ const UploadCsv = (props) => {
                )}`,
             });
          } else {
-            props.setDrawerStatus(false);
+            setDrawerStatus(false);
          }
-         props.refresh();
+         refreshCb();
       } catch (err) {
          const newErrors = { ...errors };
          newErrors.general =
@@ -70,10 +67,10 @@ const UploadCsv = (props) => {
 
    return (
       <Drawer
-         isOpen={props.drawerStatus}
+         isOpen={drawerStatus}
          placement="right"
          onClose={() => {
-            props.setDrawerStatus(false);
+            setDrawerStatus(false);
          }}
       >
          <DrawerOverlay />
@@ -119,7 +116,7 @@ const UploadCsv = (props) => {
                </CustomButton>
                <CustomButton
                   onClick={() => {
-                     props.setDrawerStatus(false);
+                     setDrawerStatus(false);
                   }}
                >
                   Cancel

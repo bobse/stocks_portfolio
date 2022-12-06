@@ -32,11 +32,13 @@ import { LabeledInfo } from "../../components/LabeledInfo/LabeledInfo";
 import { TopTotal } from "../../components/TopTotal/TopTotal";
 import { FilterTop } from "../../components/FilterTop/FilterTop";
 import { dateFormatted } from "../../utils/utils";
-import { APITRADES, APITOTALTRADES } from "../../constants";
+import { APITRADES, APITOTALTRADES, APITRADESUPLOAD } from "../../constants";
 import { CustomButton } from "../../components/Button/Button";
+import { UploadCsv } from "../../components/UploadCsv/UploadCsv";
 
 export const Trades = (props) => {
    const [tradeDrawerStatus, setTradeDrawerStatus] = useState(false);
+   const [uploadDrawerStatus, setUploadDrawerStatus] = useState(false);
    const [tradesData, setTradesData] = useState([]);
    const [totals, setTotals] = useState({
       totalProfits: 0,
@@ -128,6 +130,12 @@ export const Trades = (props) => {
             tradeDrawerStatus={tradeDrawerStatus}
             loadTradesData={loadTradesData}
          />
+         <UploadCsv
+            setDrawerStatus={setUploadDrawerStatus}
+            drawerStatus={uploadDrawerStatus}
+            refreshCb={loadTradesData}
+            apiUrl={APITRADESUPLOAD}
+         />
          <VStack alignItems={"flex-start"} spacing={2} pb={6}>
             <FilterTop
                tickers={tickersList}
@@ -147,6 +155,15 @@ export const Trades = (props) => {
                }}
             >
                Add new trade
+            </CustomButton>
+            <CustomButton
+               fontSize={"xs"}
+               py={2}
+               onClick={() => {
+                  setUploadDrawerStatus(!uploadDrawerStatus);
+               }}
+            >
+               Import csv file
             </CustomButton>
          </VStack>
          <VStack p={0} w="full" h="60vh" overflow={"scroll"} pb={10}>
