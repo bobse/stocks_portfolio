@@ -28,7 +28,7 @@ Add trades and incomes manually or import a csv file.
 
 (To run this application you must setup OATH in google console)
 
-#### 1. Download repository
+#### 1. Download repository and install dependencies in frontend and backend folder
 
 #### 2. Setup .env file at the root (check dev passwords in docker-compose file):
 
@@ -48,9 +48,10 @@ FRONTEND="http://localhost:5000"
 docker-compose up -d
 ```
 
-#### 4. Start Application and go to http://localhost.com:5000/
+#### 4. Start Application (at the the root) and go to http://localhost.com:5000/
 
 ```
+npm run build
 npm run start
 ```
 

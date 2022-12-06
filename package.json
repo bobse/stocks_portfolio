@@ -6,6 +6,7 @@
    "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
       "start_dev": "npm start --prefix frontend & npm run dev --prefix backend",
+      "build": "npm run build --prefix frontend",
       "build_start": "npm run build --prefix frontend && npm run dev --prefix backend",
       "build_docker": "npm run build --prefix frontend && npm run build --prefix backend && docker build  -t stocks_portfolio .",
       "docker_run": "docker run  --rm -p 127.0.0.1:5000:5000/tcp stocks_portfolio",
