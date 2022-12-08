@@ -15,7 +15,6 @@ import {
    DrawerContent,
    DrawerCloseButton,
    Input,
-   Select,
    FormErrorMessage,
    FormControl,
    Alert,
@@ -28,6 +27,7 @@ import {
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { ThreeDots } from "../../components/ThreeDots/ThreeDots";
+import { Notes } from "../../components/Notes/Notes";
 import { LabeledInfo } from "../../components/LabeledInfo/LabeledInfo";
 import { TopTotal } from "../../components/TopTotal/TopTotal";
 import { FilterTop } from "../../components/FilterTop/FilterTop";
@@ -36,12 +36,14 @@ import { APITRADES, APITOTALTRADES, APITRADESUPLOAD } from "../../constants";
 import { CustomButton } from "../../components/Button/Button";
 import { UploadCsv } from "../../components/UploadCsv/UploadCsv";
 
+const totalsStartUp = { totalProfits: 0 };
+
 export const Trades = (props) => {
    const [tradeDrawerStatus, setTradeDrawerStatus] = useState(false);
    const [uploadDrawerStatus, setUploadDrawerStatus] = useState(false);
    const [tradesData, setTradesData] = useState([]);
    const [totals, setTotals] = useState({
-      totalProfits: 0,
+      ...totalsStartUp,
    });
    const [pagination, setPagination] = useState();
    const [filters, setFilters] = useState({
@@ -81,7 +83,7 @@ export const Trades = (props) => {
 
             setTotals({ totalProfits });
          } else {
-            resetTotals();
+            setTotals({ ...totalsStartUp });
          }
       };
       try {
@@ -95,14 +97,6 @@ export const Trades = (props) => {
          console.log(err);
       }
    }, [filters, getTradesData]);
-
-   function resetTotals() {
-      const resetValues = { ...totals };
-      Object.keys(resetValues).forEach((k) => {
-         resetValues[k] = 0;
-      });
-      setTotals(resetValues);
-   }
 
    useEffect(() => {
       async function setTickers() {
@@ -212,6 +206,9 @@ const TradeCard = (props) => {
                <VStack textAlign={"left"} alignItems={"flex-start"} spacing={0}>
                   <Box fontSize={"2xs"} color="gray.400" pl={2}>
                      {dateFormatted(props.data.date)}
+                     {props.data.notes && props.data.notes.length > 0 && (
+                        <Notes>{props.data.notes}</Notes>
+                     )}
                   </Box>
                   <Box
                      fontSize={"2xl"}
@@ -296,6 +293,7 @@ const AddTrade = (props) => {
          price: undefined,
          fees: undefined,
          amount: undefined,
+         notes: undefined,
          general: undefined,
       });
    };
@@ -396,6 +394,16 @@ const AddTrade = (props) => {
                            required={true}
                         />
                         <FormErrorMessage>{errors?.amount}</FormErrorMessage>
+                     </FormControl>
+                     <FormControl isInvalid={errors?.notes}>
+                        <Input
+                           placeholder="Extra notes"
+                           type="text"
+                           length="100"
+                           name="notes"
+                           required={false}
+                        />
+                        <FormErrorMessage>{errors?.ticker}</FormErrorMessage>
                      </FormControl>
                   </VStack>
                </form>
