@@ -60,5 +60,5 @@ npm run start
 frontend: port 3000 / backend: port 5000
 
 ```
-npm run start_dev
+npm run dev
 ```
