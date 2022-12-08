@@ -1,4 +1,11 @@
-import { IsEmail, Matches, IsNumber, Min, IsDate } from "class-validator";
+import {
+   IsEmail,
+   Matches,
+   IsNumber,
+   Min,
+   IsDate,
+   IsOptional,
+} from "class-validator";
 
 class TradesDTO {
    @IsDate({
@@ -37,6 +44,9 @@ class TradesDTO {
    })
    amount: number;
 
+   @IsOptional()
+   notes: string;
+
    constructor(data: {
       date: Date;
       userEmail: string;
@@ -44,6 +54,7 @@ class TradesDTO {
       price: number | string;
       amount: number | string;
       fees: number | string;
+      notes: undefined | string;
    }) {
       this.date = new Date(data.date);
       this.userEmail = data.userEmail;
@@ -54,6 +65,7 @@ class TradesDTO {
       this.price = +data.price;
       this.amount = +data.amount;
       this.fees = +data.fees;
+      this.notes = data.notes !== undefined ? data.notes : "";
    }
 }
 

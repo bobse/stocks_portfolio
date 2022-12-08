@@ -66,6 +66,10 @@ const tradesSchema = new mongoose.Schema<ITradeSchema>({
       required: true,
       default: true,
    },
+   notes: {
+      type: String,
+      required: false,
+   },
 });
 
 tradesSchema.index({ userEmail: 1, date: 1, ticker: 1 }, { unique: true });

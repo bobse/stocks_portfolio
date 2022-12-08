@@ -12,6 +12,7 @@ interface ITradeSchema {
    currAvgPrice: number;
    currTotalAmount: number;
    valuesUpToDate: boolean;
+   notes?: string;
 }
 interface ITotalTrade {
    _id: string;
