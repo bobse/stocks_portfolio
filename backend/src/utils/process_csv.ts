@@ -71,7 +71,6 @@ async function processCSV(
    userEmail: string,
    DTOValidator: any
 ): Promise<{ validData: typeof DTOValidator[]; invalidLinesinFile: number[] }> {
-   csvData = csvData.replace("\r", "");
    const { data, headers } = splitCSVString(csvData);
    const validData: typeof DTOValidator[] = [];
    const invalidLinesinFile: number[] = [];
@@ -102,6 +101,9 @@ function splitCSVString(csvData: string): {
    headers: string[];
 } {
    // first line must be the keys for the csv file
+   csvData = csvData.replaceAll("\r", "");
+   csvData = csvData.replaceAll('"', "");
+
    const arrayData = csvData.split("\n").map((line) => {
       return line.split(",");
    });
