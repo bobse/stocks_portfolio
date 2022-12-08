@@ -5,7 +5,7 @@
    "main": "index.js",
    "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
-      "start_dev": "npm start --prefix frontend & npm run dev --prefix backend",
+      "dev": "npm start --prefix frontend & npm run dev --prefix backend",
       "build": "npm run build --prefix frontend",
       "build_start": "npm run build --prefix frontend && npm run dev --prefix backend",
       "build_docker": "npm run build --prefix frontend && npm run build --prefix backend && docker build  -t stocks_portfolio .",
