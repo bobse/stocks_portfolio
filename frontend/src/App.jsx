@@ -4,7 +4,6 @@ import "@fontsource/lato/700.css";
 import { ChakraProvider, VStack, Box } from "@chakra-ui/react";
 import { customTheme } from "./Theme/CustomTheme";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
-import auth from "./services/auth";
 import { Header } from "./components/Header/Header";
 import { Portfolio } from "./routes/Portfolio/Portfolio";
 import { Trades } from "./routes/Trades/Trades";

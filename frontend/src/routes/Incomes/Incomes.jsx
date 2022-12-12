@@ -24,16 +24,18 @@ import { CustomButton } from "../../components/Button/Button";
 import { AddIncome } from "./AddIncome";
 import { UploadCsv } from "../../components/UploadCsv/UploadCsv";
 
+const totalsStartUp = {
+   totalIncome: 0,
+   totalInterests: 0,
+   totalDividends: 0,
+};
+
 export const Incomes = (props) => {
    const [incomeDrawerStatus, setIncomeDrawerStatus] = useState(false);
    const [uploadDrawerStatus, setUploadDrawerStatus] = useState(false);
 
    const [incomesData, setIncomesData] = useState([]);
-   const [totals, setTotals] = useState({
-      totalIncome: 0,
-      totalInterests: 0,
-      totalDividends: 0,
-   });
+   const [totals, setTotals] = useState({ ...totalsStartUp });
    const [pagination, setPagination] = useState();
    const [filters, setFilters] = useState({
       ticker: "all",
@@ -60,13 +62,6 @@ export const Incomes = (props) => {
    );
 
    const loadIncomeData = useCallback(async () => {
-      function resetTotals() {
-         const resetValues = { ...totals };
-         Object.keys(resetValues).forEach((k) => {
-            resetValues[k] = 0;
-         });
-         setTotals(resetValues);
-      }
       const updateTotals = async () => {
          let url = APITOTALINCOMES;
          url += `/${filters.year}`;
@@ -82,7 +77,7 @@ export const Incomes = (props) => {
             const totalIncome = totalDividends + totalInterests;
             setTotals({ totalIncome, totalDividends, totalInterests });
          } else {
-            resetTotals();
+            setTotals({ ...totalsStartUp });
          }
       };
       try {

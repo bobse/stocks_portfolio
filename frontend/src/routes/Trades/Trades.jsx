@@ -42,9 +42,7 @@ export const Trades = (props) => {
    const [tradeDrawerStatus, setTradeDrawerStatus] = useState(false);
    const [uploadDrawerStatus, setUploadDrawerStatus] = useState(false);
    const [tradesData, setTradesData] = useState([]);
-   const [totals, setTotals] = useState({
-      ...totalsStartUp,
-   });
+   const [totals, setTotals] = useState({ ...totalsStartUp });
    const [pagination, setPagination] = useState();
    const [filters, setFilters] = useState({
       ticker: "all",

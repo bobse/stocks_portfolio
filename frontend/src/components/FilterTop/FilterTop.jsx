@@ -1,4 +1,4 @@
-import { Box, Flex, Select } from "@chakra-ui/react";
+import { Flex, Select } from "@chakra-ui/react";
 
 export const FilterTop = (props) => {
    const years = [...Array(30).keys()].map(
