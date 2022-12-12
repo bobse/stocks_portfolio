@@ -12,7 +12,7 @@ const setupGCPAuth = (app: Application) => {
          {
             clientID: process.env.GCP_OAUTH_ID || "",
             clientSecret: process.env.GCP_OAUTH_SECRET || "",
-            callbackURL: "/auth/google/callback",
+            callbackURL: process.env.FRONTEND + "/auth/google/callback",
          },
          verifyCallback as any
       )
