@@ -19,7 +19,11 @@ export const TopTotal = (props) => {
          >
             {props.text}
          </Box>
-         <Box fontSize="xl" fontWeight={"bold"} color={"green.400"}>
+         <Box
+            fontSize="xl"
+            fontWeight={"bold"}
+            color={props.value > 0 ? "green.400" : "red.400"}
+         >
             {props.type === "value" ? "$" : ""}
             {props.value.toFixed(2)}
             {props.type === "perc" ? "%" : ""}
