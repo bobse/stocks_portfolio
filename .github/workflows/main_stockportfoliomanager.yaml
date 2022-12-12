@@ -61,7 +61,7 @@ jobs:
            with:
               context: .
               push: true
-              tags: robertoseba/dev:latest
+              tags: robertoseba/dev:${{ github.sha }}
               file: ./Dockerfile
 
          - name: "Deploy to Azure Web App for Container"
@@ -69,4 +69,4 @@ jobs:
            with:
               app-name: ${{ secrets.AZURE_APP_NAME }}
               publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-              images: robertoseba/dev:latest
+              images: https://index.docker.io/v1/robertoseba/dev:${{ github.sha }}
