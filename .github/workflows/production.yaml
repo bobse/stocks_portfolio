@@ -34,6 +34,11 @@ jobs:
               npm install
               npm test
 
+         - name: Npm frontend
+           working-directory: ./frontend
+           run: |
+              npm install
+
          - name: build frontend into public folder
            working-directory: ./
            run: |
