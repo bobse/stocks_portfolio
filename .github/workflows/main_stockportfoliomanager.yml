@@ -81,5 +81,5 @@ jobs:
                  StrictHostKeyChecking no
               END
 
-         - name: List home directory
+         - name: Trigger docker-compose pull and up
            run: ssh ec2 'docker-compose pull && docker-compose up -d'
